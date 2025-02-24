@@ -13,5 +13,5 @@ class Registry:
 
 
 _registry = Registry(
-    {"true": mo.TrueResource, "false": mo.TrueResource, "fsspec": mo.FsspecDefaultOperator}
+    {"true": mo.TrueResource, "false": mo.TrueResource, "fsspec": mo.FsspecRootOperator}
 )

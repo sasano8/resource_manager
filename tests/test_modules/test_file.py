@@ -1,6 +1,6 @@
 import pytest
 from src.modules.mock import TrueResource, FalseResource
-from src.modules.file import FsspecDefaultOperator, FsspecFileOperator
+from src.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
 from src.base2 import StepDataExtension
 from src.base import Operator, Executable, HasOperator
 
@@ -14,7 +14,7 @@ def get_capability(cls: type):
     }
 
 
-types = [FsspecDefaultOperator, TrueResource, FalseResource]
+types = [FsspecRootOperator, TrueResource, FalseResource]
 
 
 class PartialOperator:
@@ -98,6 +98,26 @@ def test_true_false():
     assert not res.recreated()
 
 
+def test_dir():
+    from tempfile import TemporaryDirectory
+
+    with TemporaryDirectory() as td:
+        # op = FsspecRootOperator.get_operator("dir")
+        params = {"path": td + "/file_dir"}
+        op = PartialExecutor(FsspecDirOperator("local").to_executor(), params)
+        # base scenario
+        print()
+        assert not op.exists()
+        assert op.absent()
+        assert op.created()
+        assert op.exists()
+        assert not op.absent()
+        assert op.deleted()
+        assert not op.exists()
+        assert op.absent()
+
+
+
 def test_file():
     from tempfile import TemporaryDirectory
 
@@ -114,6 +134,8 @@ def test_file():
         assert res.deleted()
         assert not res.exists()
         assert res.absent()
+
+
 
 
 def test_manifest():

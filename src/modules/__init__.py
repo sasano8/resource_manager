@@ -1,2 +1,2 @@
 from .mock import TrueResource, FalseResource
-from .file import FsspecDefaultOperator
+from .file import FsspecRootOperator

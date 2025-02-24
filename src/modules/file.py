@@ -4,7 +4,7 @@ import fsspec
 from fsspec import AbstractFileSystem
 
 
-class FsspecDefaultOperator(Operator):
+class FsspecRootOperator(Operator):
     @staticmethod
     def get_operator(type: str):
         if type == "file":
@@ -68,11 +68,12 @@ class FsspecDirOperator(Operator):
         fs = self.get_filesystem()
         if not fs.exists(path):
             fs.mkdirs(path, exist_ok=True)
+        return True, ""
 
     def delete(self, path: str, *args, **kwargs):
         fs = self.get_filesystem()
         fs.rmdir(path)
-        fs.rm(path, recursive=True)
+        # fs.rm(path, recursive=True)
         return True, ""
 
     def exists(self, path: str, *args, **kwargs):
