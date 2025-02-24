@@ -4,33 +4,6 @@ import fsspec
 from fsspec import AbstractFileSystem
 
 
-class FileManager(Resource):
-    def __init__(self, path: str, content: str = ""):
-        self._path = Path(path)
-        self._content = content
-
-    def create(self):
-        with self._path.open("x") as f:
-            f.write(self._content)
-        return True, ""
-
-    def delete(self):
-        self._path.unlink(missing_ok=True)
-        return True, ""
-
-    def exists(self):
-        if self._path.exists():
-            return True, ""
-        else:
-            return False, f"Not Exists {str(self._path)}"
-
-    def absent(self):
-        if self._path.exists():
-            return False, f"Exists {str(self._path)}"
-        else:
-            return True, ""
-
-
 class FsspecOperator(Resource):
     def __init__(self, protocol, **kwargs):
         self._protocol = protocol
