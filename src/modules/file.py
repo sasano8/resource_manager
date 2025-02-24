@@ -1,5 +1,4 @@
 from ..base import Operator
-from pathlib import Path
 import fsspec
 from fsspec import AbstractFileSystem
 

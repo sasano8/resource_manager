@@ -2,80 +2,137 @@ from ..base import Operator
 
 import psycopg2
 from psycopg2 import sql
-
-db_params = {
-    "dbname": "your_database",
-    "user": "your_username",
-    "password": "your_password",
-    "host": "localhost",
-    "port": 5432,
-}
+import traceback
 
 
-class SqlalchemySchema(Operator):
-    def __init__(self, schema: str):
-        raise NotImplementedError()
-        self._schema = schema
+class NoRecordError(Exception): ...
 
-    def create(self):
-        f"CREATE SCHEMA IF NOT EXISTS {self._schema}"
-        return True, ""
 
-    def delete(self):
-        f"DROP SCHEMA IF EXISTS {self._schema}"
-        return True, ""
-
-    def exists(self):
-        "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = %s);"
-        if self._path.exists():
-            return True, ""
+class Psycopg2Operator(Operator):
+    @staticmethod
+    def get_operator(type: str):
+        if type == "schema":
+            return Psycopg2Operator
         else:
-            return False, f"Not Exists {str(self._path)}"
+            raise TypeError()
 
-    def absent(self):
-        "SELECT NOT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = %s);"
-        if self._path.exists():
-            return False, f"Exists {str(self._path)}"
+    def __init__(self, host, dbname, user, password: str = "", port: int = 5432):
+        self._dbparams = {
+            "host": host,
+            "dbname": dbname,
+            "user": user,
+            "password": password,
+            "port": port,
+        }
+
+    def exists(self, schema, *args, **kwargs):
+        ok, result = get_conn(self._dbparams)
+        if not ok:
+            return ok, result
+
+        stmt = sql.SQL(
+            "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = %s);"
+        )
+
+        with result as conn:
+            ok, result = fetch_scalar(
+                conn,
+                stmt,
+                (schema,),
+            )
+        if ok:
+            if result == 1:
+                return True, ""
+            else:
+                return False, f"Not exists {schema}"
+
+    def absent(self, schema, *args, **kwargs):
+        ok, msg = self.exists(schema)
+        if ok:
+            return False, "Not absent."
         else:
-            return True, ""
+            return True, msg
+
+    def create(self, schema, *args, **kwargs):
+        ok, result = get_conn(self._dbparams)
+        if not ok:
+            return ok, result
+
+        stmt = sql.SQL("CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME};").format(
+            SCHEMA_NAME=sql.Identifier(schema)
+        )
+
+        with result as conn:
+            ok, msg = execute(
+                conn,
+                stmt,
+            )
+        if ok:
+            return True, "Schema created."
+        else:
+            return False, msg
+
+    def delete(self, schema, *args, **kwargs):
+        ok, result = get_conn(self._dbparams)
+        if not ok:
+            return ok, result
+
+        stmt = sql.SQL("DROP SCHEMA IF EXISTS {SCHEMA_NAME};").format(
+            SCHEMA_NAME=sql.Identifier(schema)
+        )
+
+        with result as conn:
+            ok, msg = execute(
+                conn,
+                stmt,
+            )
+        if ok:
+            return True, "Schema created."
+        else:
+            return False, msg
 
 
-def aaa():
-    import psycopg2
-    from psycopg2 import sql
-
-    # データベース接続設定
-    db_params = {
-        "dbname": "your_database",
-        "user": "your_username",
-        "password": "your_password",
-        "host": "localhost",
-        "port": 5432,
-    }
-
-    # 確認したいスキーマ名
-    schema_name = "my_schema"
-
-    # PostgreSQLに接続
+def get_conn(dbparams):
     try:
-        with psycopg2.connect(**db_params) as conn:
-            with conn.cursor() as cur:
-                # スキーマ存在確認のクエリ
-                cur.execute(
-                    sql.SQL(
-                        "SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = %s);"
-                    ),
-                    (schema_name,),
-                )
-
-                # 結果を取得
-                exists = cur.fetchone()[0]
-
-                # 結果を表示
-                if exists:
-                    print(f"スキーマ '{schema_name}' は存在します。")
-                else:
-                    print(f"スキーマ '{schema_name}' は存在しません。")
-
+        conn = psycopg2.connect(**dbparams)
     except Exception as e:
-        print(f"エラーが発生しました: {e}")
+        return False, f"{str(e)}\n{traceback.format_exc()}"
+    return True, conn
+
+
+def fetch_scalar(conn, stmt, params: tuple = tuple()):
+    """スカラー値を返す"""
+    with conn.cursor() as cur:
+        try:
+            cur.execute(stmt, params)
+        except Exception as e:
+            return False, f"{str(e)}\n{traceback.format_exc()}"
+
+        try:
+            row = cur.fetchone()
+            if not row:
+                return False, NoRecordError("row does not exist.")
+            result = row[0]
+        except Exception as e:
+            return False, f"{str(e)}\n{traceback.format_exc()}"
+        return True, result
+
+
+def execute(conn, stmt, params: tuple = tuple()):
+    with conn.cursor() as cur:
+        try:
+            cur.execute(stmt, params)
+        except Exception as e:
+            return False, f"{str(e)}\n{traceback.format_exc()}"
+        return True, ""
+
+
+def assert_value(ok, result_or_error, expect, errmsg: str = "error"):
+    if ok:
+        ok = result_or_error == expect
+        if ok:
+            return ok, ""
+        else:
+            return False, errmsg
+    else:
+        return False, errmsg

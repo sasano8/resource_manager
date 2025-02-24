@@ -1,6 +1,7 @@
 import pytest
 from src.modules.mock import TrueResource, FalseResource
 from src.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
+from src.modules.db import Psycopg2Operator
 from src.base2 import StepDataExtension
 from src.base import Operator, Executable, HasOperator
 
@@ -102,9 +103,9 @@ def test_dir():
     from tempfile import TemporaryDirectory
 
     with TemporaryDirectory() as td:
-        # op = FsspecRootOperator.get_operator("dir")
+        conn = {"protocol": "local"}
         params = {"path": td + "/file_dir"}
-        op = PartialExecutor(FsspecDirOperator("local").to_executor(), params)
+        op = PartialExecutor(FsspecDirOperator(**conn).to_executor(), params)
         # base scenario
         print()
         assert not op.exists()
@@ -121,18 +122,42 @@ def test_file():
     from tempfile import TemporaryDirectory
 
     with TemporaryDirectory() as td:
+        conn = {"protocol": "local"}
         params = {"path": td + "/file_test.txt"}
-        res = PartialExecutor(FsspecFileOperator("local").to_executor(), params)
+        op = PartialExecutor(FsspecFileOperator(**conn).to_executor(), params)
         # base scenario
         print()
-        assert not res.exists()
-        assert res.absent()
-        assert res.created()
-        assert res.exists()
-        assert not res.absent()
-        assert res.deleted()
-        assert not res.exists()
-        assert res.absent()
+        assert not op.exists()
+        assert op.absent()
+        assert op.created()
+        assert op.exists()
+        assert not op.absent()
+        assert op.deleted()
+        assert not op.exists()
+        assert op.absent()
+
+
+def test_schema():
+    conn = {
+        "host": "localhost",
+        "dbname": "dev",
+        "user": "admin",
+        "password": "password",
+        "port": 5432,
+    }
+    params = {"schema": "resmanager"}
+    op = PartialExecutor(Psycopg2Operator(**conn).to_executor(), params)
+
+    # base scenario
+    print()
+    assert not op.exists()
+    assert op.absent()
+    assert op.created()
+    assert op.exists()
+    assert not op.absent()
+    assert op.deleted()
+    assert not op.exists()
+    assert op.absent()
 
 
 def test_manifest():
