@@ -18,6 +18,6 @@ _registry = Registry(
         "true": mo.TrueResource,
         "false": mo.TrueResource,
         "fsspec": mo.FsspecRootOperator,
-        "psycopg2": mo.Psycopg2Operator,
+        "psycopg2": mo.Psycopg2SchemaOperator,
     }
 )

@@ -8,11 +8,11 @@ import traceback
 class NoRecordError(Exception): ...
 
 
-class Psycopg2Operator(Operator):
+class Psycopg2SchemaOperator(Operator):
     @staticmethod
     def get_operator(type: str):
         if type == "schema":
-            return Psycopg2Operator
+            return Psycopg2SchemaOperator
         else:
             raise TypeError()
 

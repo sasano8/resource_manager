@@ -1,7 +1,7 @@
 import pytest
 from src.modules.mock import TrueResource, FalseResource
 from src.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
-from src.modules.db import Psycopg2Operator
+from src.modules.db import Psycopg2SchemaOperator
 from src.base2 import StepDataExtension
 from src.base import Operator, Executable, HasOperator
 
@@ -146,10 +146,11 @@ def test_schema():
         "port": 5432,
     }
     params = {"schema": "resmanager"}
-    op = PartialExecutor(Psycopg2Operator(**conn).to_executor(), params)
+    op = PartialExecutor(Psycopg2SchemaOperator(**conn).to_executor(), params)
 
     # base scenario
     print()
+    op.deleted()  # 残っている場合は削除
     assert not op.exists()
     assert op.absent()
     assert op.created()
@@ -176,5 +177,26 @@ def test_manifest():
         wait_time: 0
     """
 
-    step = StepDataExtension.from_stream(_).override(state="created")
+    step = StepDataExtension.from_stream(_).override(state="recreated")
+    step.apply()
+
+    _ = """
+    postgres-schema:
+        description: "init"
+        state: "recreated"
+        connector:
+            host: localhost
+            dbname: dev
+            user: admin
+            password: password
+            port: 5432
+        module:
+            type: psycopg2
+            subtype: schema
+            params:
+                schema: "resmanager"
+        wait_time: 0
+    """
+
+    step = StepDataExtension.from_stream(_).override(state="recreated")
     step.apply()
