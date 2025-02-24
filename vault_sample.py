@@ -1,4 +1,5 @@
 import hvac
+from hvac.api.secrets_engines.kv_v2 import KvV2
 
 
 def get_client():
@@ -9,7 +10,7 @@ def get_client():
     return client
 
 
-def main(client: hvac.Client):
+def main(client: KvV2):
     """
     https://python-hvac.org/en/stable/usage/secrets_engines/kv_v2.html
     """
@@ -18,7 +19,7 @@ def main(client: hvac.Client):
 
     try:
         # パスが作成されていないとエラーが生じる
-        list_response = client.secrets.kv.v2.list_secrets(
+        list_response = client.list_secrets(
             path=PATH,
         )
         for key in list_response["data"]["keys"]:
@@ -26,19 +27,17 @@ def main(client: hvac.Client):
     except Exception as e:
         ...
 
-    res = client.secrets.kv.v2.create_or_update_secret(
+    res = client.create_or_update_secret(
         path=PATH,
         secret=dict(password="Hashi123"),
     )
     print(res)
 
-    res = client.secrets.kv.v2.read_secret_version(
-        path=PATH, raise_on_deleted_version=False
-    )
+    res = client.read_secret_version(path=PATH, raise_on_deleted_version=False)
     print(res)
     # print(res['data']['data']['password'])
 
-    res = client.secrets.kv.v2.patch(
+    res = client.patch(
         path=PATH,
         secret=dict(password="Hashi456"),
     )
@@ -51,11 +50,11 @@ def main(client: hvac.Client):
     # print(res)
 
     # latest の指定方法がよくわからない
-    res = client.secrets.kv.v2.delete_secret_versions(
+    res = client.delete_secret_versions(
         path=PATH,
         versions=[1, 2, 3],
     )
     print(res)
 
 
-main(get_client())
+main(get_client().secrets.kv.v2)
