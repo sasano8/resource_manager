@@ -2,7 +2,7 @@ import pytest
 from src.modules.mock import TrueResource, FalseResource
 from src.modules.file import FsspecDefaultOperator, FsspecFileOperator
 from src.base2 import StepDataExtension
-from src.base import Resource, Executable, HasOperator
+from src.base import Operator, Executable, HasOperator
 
 
 def get_capability(cls: type):
@@ -18,7 +18,7 @@ types = [FsspecDefaultOperator, TrueResource, FalseResource]
 
 
 class PartialOperator:
-    def __init__(self, operator: Resource, params):
+    def __init__(self, operator: Operator, params):
         self._operator = operator
         self._params = params
 

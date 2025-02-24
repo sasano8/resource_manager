@@ -1,7 +1,7 @@
-from ..base import Resource
+from ..base import Operator
 
 
-class TrueResource(Resource):
+class TrueResource(Operator):
     def create(self):
         return True, "a resource created(absolutely True)."
 
@@ -15,7 +15,7 @@ class TrueResource(Resource):
         return True, "a resource absent(absolutely True)."
 
 
-class FalseResource(Resource):
+class FalseResource(Operator):
     def create(self):
         return False, "a resource cant created(absolutely False)."
 

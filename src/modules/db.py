@@ -1,4 +1,4 @@
-from ..base import Resource
+from ..base import Operator
 
 import psycopg2
 from psycopg2 import sql
@@ -12,7 +12,7 @@ db_params = {
 }
 
 
-class SqlalchemySchema(Resource):
+class SqlalchemySchema(Operator):
     def __init__(self, schema: str):
         raise NotImplementedError()
         self._schema = schema

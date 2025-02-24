@@ -1,10 +1,10 @@
-from ..base import Resource
+from ..base import Operator
 from pathlib import Path
 import fsspec
 from fsspec import AbstractFileSystem
 
 
-class FsspecDefaultOperator(Resource):
+class FsspecDefaultOperator(Operator):
     @staticmethod
     def get_operator(type: str):
         if type == "file":
@@ -15,7 +15,7 @@ class FsspecDefaultOperator(Resource):
             raise TypeError()
 
 
-class FsspecFileOperator(Resource):
+class FsspecFileOperator(Operator):
     def __init__(self, protocol, **kwargs):
         self._protocol = protocol
         self._kwargs = kwargs
@@ -56,7 +56,7 @@ class FsspecFileOperator(Resource):
             return True, ""
 
 
-class FsspecDirOperator(Resource):
+class FsspecDirOperator(Operator):
     def __init__(self, protocol, **kwargs):
         self._protocol = protocol
         self._kwargs = kwargs

@@ -1,5 +1,5 @@
 import yaml
-from .base import StepData, Resource, execute, HasOperator
+from .base import StepData, Operator, execute, HasOperator
 from .registry import _registry
 
 
@@ -59,7 +59,7 @@ class StepDataExtension:
             raise RuntimeError()
         
         operator_cls = res_cls.get_operator(step["module"]["subtype"])
-        operator: Resource = operator_cls(**connector)
+        operator: Operator = operator_cls(**connector)
         executor = CliExecutor()
         return executor.execute(operator, state, step["module"]["params"])
 
@@ -85,7 +85,7 @@ class Module:
 class CliExecutor:
     def execute(
         self,
-        resource: Resource,
+        resource: Operator,
         state: str,
         params: dict = None,
         massage: str = " must be {state} but: {err}",

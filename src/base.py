@@ -24,7 +24,7 @@ class HasOperator:
             raise TypeError()
 
 
-class Resource(HasOperator):
+class Operator(HasOperator):
     def to_executor(self):
         return Executable(self)
 
@@ -45,8 +45,8 @@ class Resource(HasOperator):
 
 
 class ResourceController:
-    def __init__(self, resource: Resource, wait_time: float):
-        if not isinstance(resource, Resource):
+    def __init__(self, resource: Operator, wait_time: float):
+        if not isinstance(resource, Operator):
             raise TypeError()
         self._resource = resource
         self._wait_time = wait_time
@@ -79,7 +79,7 @@ class ResourceController:
 
 
 class Executable:
-    def __init__(self, resource: Resource, wait_time: float = None):
+    def __init__(self, resource: Operator, wait_time: float = None):
         self._resource = resource
 
     def created(self, **params: dict):
@@ -161,7 +161,7 @@ def hook(depth, func, ok, err):
 
 
 def execute(
-    resource: Resource,
+    resource: Operator,
     state: str,
     params: dict,
     massage: str = " must be {state} but: {str(err)}",
