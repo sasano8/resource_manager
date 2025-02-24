@@ -22,3 +22,13 @@ services:
       - 9000:9000
     command: ["server", "/data", "--console-address", ":9001", "--address", ":9000"]
     
+  vault:
+    image: hashicorp/vault:latest
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "vault-token"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    cap_drop:
+      - IPC_LOCK  # センシティブなメモリ情報をロックする
+    ports:
+      - 8200:8200
+    

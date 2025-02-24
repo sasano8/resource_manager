@@ -33,3 +33,9 @@ pre-commit install
 ```
 resctl resource apply -f resources/
 ```
+
+- は標準入力から読み取るという docker で用意された機能
+
+```
+printf "mysecretdata" | docker secret create my_secret -
+```
