@@ -19,9 +19,9 @@ types = [FsspecRootOperator, TrueOperator, FalseOperator]
 
 
 class PartialOperator:
-    def __init__(self, operator: Operator, params):
+    def __init__(self, operator: Operator, params: dict = None):
         self._operator = operator
-        self._params = params
+        self._params = params or {}
 
     def to_executor(self):
         return self._operator.to_executor()
@@ -76,11 +76,11 @@ def test_exists_method(cls):
 
 
 def test_true_false():
-    op = PartialOperator(TrueOperator())
-    assert op.create()
-    assert op.delete()
-    assert op.exists()
-    assert op.absent()
+    op = TrueOperator()
+    assert op.create()[0]
+    assert op.delete()[0]
+    assert op.exists()[0]
+    assert op.absent()[0]
     assert isinstance(op.get_default_wait_time(), (int, float))
 
     op = op.to_executor()
@@ -90,11 +90,11 @@ def test_true_false():
     assert op.absent()
     assert op.recreated()
 
-    op = PartialOperator(FalseOperator())
-    assert not op.create()
-    assert not op.delete()
-    assert not op.exists()
-    assert not op.absent()
+    op = FalseOperator()
+    assert not op.create()[0]
+    assert not op.delete()[0]
+    assert not op.exists()[0]
+    assert not op.absent()[0]
     assert isinstance(op.get_default_wait_time(), (int, float))
 
     op = op.to_executor()
@@ -223,7 +223,7 @@ def test_manifest():
             subtype: file
             params:
                 bucket: test-cache
-                path: "fsspec/local/test.txt"
+                path: "fsspec/s3/test.txt"
                 content: "test"
         wait_time: 0
     """
