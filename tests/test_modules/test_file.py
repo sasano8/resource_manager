@@ -104,7 +104,7 @@ def test_dir():
 
     with TemporaryDirectory() as td:
         conn = {"protocol": "local"}
-        params = {"path": td + "/file_dir"}
+        params = {"path": td + "/file_dir", "bucket": ""}
         op = PartialExecutor(FsspecDirOperator(**conn).to_executor(), params)
         # base scenario
         print()
@@ -123,7 +123,7 @@ def test_file():
 
     with TemporaryDirectory() as td:
         conn = {"protocol": "local"}
-        params = {"path": td + "/file_test.txt"}
+        params = {"path": td + "/file_test.txt", "bucket": ""}
         op = PartialExecutor(FsspecFileOperator(**conn).to_executor(), params)
         # base scenario
         print()
@@ -172,7 +172,8 @@ def test_manifest():
             type: fsspec
             subtype: file
             params:
-                path: ".cache/fsspec/local/test.txt"
+                bucket: "test-cache"
+                path: "fsspec/local/test.txt"
                 content: "test!!!"
         wait_time: 0
     """
@@ -195,6 +196,29 @@ def test_manifest():
             subtype: schema
             params:
                 schema: "resmanager"
+        wait_time: 0
+    """
+
+    step = StepDataExtension.from_stream(_).override(state="recreated")
+    step.apply()
+
+    # dir の１つ目はバケットとみなされる
+    _ = """
+    fsspec-s3:
+        description: "init"
+        state: "recreated"
+        connector:
+            protocol: s3
+            endpoint_url: http://localhost:9000
+            key: admin
+            secret: password
+        module:
+            type: fsspec
+            subtype: file
+            params:
+                bucket: test-cache
+                path: "fsspec/local/test.txt"
+                content: "test"
         wait_time: 0
     """
 

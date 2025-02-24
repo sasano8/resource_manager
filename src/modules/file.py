@@ -1,6 +1,15 @@
 from ..base import Operator
 import fsspec
 from fsspec import AbstractFileSystem
+from os import path as pathutil
+
+
+unsafes = {"~", "..", "*", "{", "}"}
+
+
+def safe_join(bucket, *args):
+    """s3 のバケット命名規約に従わせる。あと、endpoint にバケット名を含めることができるが、挙動を制御できないので禁止させること"""
+    return pathutil.join(bucket, *args)
 
 
 class FsspecRootOperator(Operator):
@@ -22,65 +31,75 @@ class FsspecRootOperator(Operator):
 
 
 class FsspecFileOperator(FsspecRootOperator):
-    def create(self, path: str, content: str = "", *args, **kwargs):
+    def create(self, path: str, bucket: str = "", content: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        directory = "/".join(path.split("/")[:-1])
+        p = safe_join(bucket, path)
+        directory = "/".join(p.split("/")[:-1])
         if not fs.exists(directory):
             fs.mkdirs(directory, exist_ok=True)
 
-        with fs.open(path, "x") as f:
+        with fs.open(p, "x") as f:
             f.write(content)
         return True, ""
 
-    def delete(self, path: str, *args, **kwargs):
+    def delete(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        fs.delete(path, recursive=True)
+        p = safe_join(bucket, path)
+        fs.delete(p, recursive=True)
         return True, ""
 
-    def exists(self, path: str, *args, **kwargs):
+    def exists(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        if fs.exists(path):
-            if fs.isfile(path):
+        p = safe_join(bucket, path)
+        if fs.exists(p):
+            if fs.isfile(p):
                 return True, ""
             else:
                 return False, f"Not File."
         else:
-            return False, f"Not Exists {str(path)}"
+            return False, f"Not Exists {str(p)}"
 
-    def absent(self, path: str, *args, **kwargs):
+    def absent(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        if fs.exists(path):
-            return False, f"Exists {str(path)}"
+        p = safe_join(bucket, path)
+        if fs.exists(p):
+            return False, f"Exists {str(p)}"
         else:
             return True, ""
 
 
 class FsspecDirOperator(FsspecRootOperator):
-    def create(self, path: str, *args, **kwargs):
+    def create(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        if not fs.exists(path):
-            fs.mkdirs(path, exist_ok=True)
+        p = safe_join(bucket, path)
+        if not fs.exists(p):
+            fs.mkdirs(p, exist_ok=True)
         return True, ""
 
-    def delete(self, path: str, *args, **kwargs):
+    def delete(self, path: str, bucket: str = "", *args, **kwargs):
+        if not path:
+            raise RuntimeError()
+
         fs = self.get_filesystem()
-        fs.rmdir(path)
-        # fs.rm(path, recursive=True)
+        p = safe_join(bucket, path)
+        fs.rmdir(p)
         return True, ""
 
-    def exists(self, path: str, *args, **kwargs):
+    def exists(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        if fs.exists(path):
-            if fs.isdir(path):
+        p = safe_join(bucket, path)
+        if fs.exists(p):
+            if fs.isdir(p):
                 return True, ""
             else:
                 return False, f"Not directory."
         else:
-            return False, f"Not Exists {str(path)}"
+            return False, f"Not Exists {str(p)}"
 
-    def absent(self, path: str, *args, **kwargs):
+    def absent(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
-        if fs.exists(path):
-            return False, f"Exists {str(path)}"
+        p = safe_join(bucket, path)
+        if fs.exists(p):
+            return False, f"Exists {str(p)}"
         else:
             return True, ""
