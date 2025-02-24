@@ -15,8 +15,8 @@ class Registry:
 
 _registry = Registry(
     {
-        "true": mo.TrueResource,
-        "false": mo.TrueResource,
+        "true": mo.TrueOperator,
+        "false": mo.TrueOperator,
         "fsspec": mo.FsspecRootOperator,
         "psycopg2": mo.Psycopg2SchemaOperator,
     }

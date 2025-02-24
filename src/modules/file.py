@@ -5,10 +5,13 @@ from os import path as pathutil
 
 
 unsafes = {"~", "..", "*", "{", "}"}
+bucket_unsafes = {"/"}
 
 
 def safe_join(bucket, *args):
     """s3 のバケット命名規約に従わせる。あと、endpoint にバケット名を含めることができるが、挙動を制御できないので禁止させること"""
+    if not bucket:
+        raise ValueError(bucket)
     return pathutil.join(bucket, *args)
 
 

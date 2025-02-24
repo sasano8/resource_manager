@@ -1,5 +1,5 @@
 import pytest
-from src.modules.mock import TrueResource, FalseResource
+from src.modules.mock import TrueOperator, FalseOperator
 from src.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
 from src.modules.db import Psycopg2SchemaOperator
 from src.base2 import StepDataExtension
@@ -15,13 +15,19 @@ def get_capability(cls: type):
     }
 
 
-types = [FsspecRootOperator, TrueResource, FalseResource]
+types = [FsspecRootOperator, TrueOperator, FalseOperator]
 
 
 class PartialOperator:
     def __init__(self, operator: Operator, params):
         self._operator = operator
         self._params = params
+
+    def to_executor(self):
+        return self._operator.to_executor()
+
+    def get_default_wait_time(self):
+        return self._operator.get_default_wait_time()
 
     def exists(self):
         return self._operator.exists(**self._params)
@@ -70,33 +76,33 @@ def test_exists_method(cls):
 
 
 def test_true_false():
-    res = TrueResource()
-    assert res.create()[0]
-    assert res.delete()[0]
-    assert res.exists()[0]
-    assert res.absent()[0]
-    assert isinstance(res.get_default_wait_time(), (int, float))
+    op = PartialOperator(TrueOperator())
+    assert op.create()
+    assert op.delete()
+    assert op.exists()
+    assert op.absent()
+    assert isinstance(op.get_default_wait_time(), (int, float))
 
-    res = res.to_executor()
-    assert res.created()
-    assert res.deleted()
-    assert res.exists()
-    assert res.absent()
-    assert res.recreated()
+    op = op.to_executor()
+    assert op.created()
+    assert op.deleted()
+    assert op.exists()
+    assert op.absent()
+    assert op.recreated()
 
-    res = FalseResource()
-    assert not res.create()[0]
-    assert not res.delete()[0]
-    assert not res.exists()[0]
-    assert not res.absent()[0]
-    assert isinstance(res.get_default_wait_time(), (int, float))
+    op = PartialOperator(FalseOperator())
+    assert not op.create()
+    assert not op.delete()
+    assert not op.exists()
+    assert not op.absent()
+    assert isinstance(op.get_default_wait_time(), (int, float))
 
-    res = res.to_executor()
-    assert not res.created()
-    assert not res.deleted()
-    assert not res.exists()
-    assert not res.absent()
-    assert not res.recreated()
+    op = op.to_executor()
+    assert not op.created()
+    assert not op.deleted()
+    assert not op.exists()
+    assert not op.absent()
+    assert not op.recreated()
 
 
 def test_dir():
@@ -104,7 +110,7 @@ def test_dir():
 
     with TemporaryDirectory() as td:
         conn = {"protocol": "local"}
-        params = {"path": td + "/file_dir", "bucket": ""}
+        params = {"bucket": td, "path": "file_dir"}
         op = PartialExecutor(FsspecDirOperator(**conn).to_executor(), params)
         # base scenario
         print()
@@ -123,7 +129,7 @@ def test_file():
 
     with TemporaryDirectory() as td:
         conn = {"protocol": "local"}
-        params = {"path": td + "/file_test.txt", "bucket": ""}
+        params = {"bucket": td, "path": "file_test.txt"}
         op = PartialExecutor(FsspecFileOperator(**conn).to_executor(), params)
         # base scenario
         print()
