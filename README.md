@@ -23,3 +23,13 @@ destroy 実行後に、init を実行します。
 ```
 pre-commit install
 ```
+
+
+# CLI
+
+次のようにリソースの状態を適用することができます。
+指定するパスがディレクトリの場合、再帰的に yml ファイルを読み取りリソースの状態を適用します。
+
+```
+resctl resource apply -f resources/
+```
