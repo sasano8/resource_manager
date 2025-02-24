@@ -1,0 +1,11 @@
+fsspec-local:
+  description: "init"
+  state: "recreated"
+  module: fsspec
+  params:
+    path: "./cache/fsspec/minio/test.txt"
+    content: "test!!!"
+  wait_time: 0
+  # connector:
+  #   type: fsspec
+

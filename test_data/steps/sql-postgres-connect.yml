@@ -1,0 +1,23 @@
+# test-sql-schema:
+#   description: "init"
+#   state: "recreated"
+#   module: file
+#   params:
+#     path: "./cache/test.txt"
+#     content: "test!!!"
+#   wait_time: 0
+sql-postgres-connect:
+  description: "init"
+  module: sql
+  state: "created"
+  params:
+    type: schema
+    name: mlflow_catalog
+  connector:
+    type: psycopg2
+    params:
+      dbname: "dev"
+      user: "admin"
+      password: "password"
+      host: "localhost"
+      port: "5432"

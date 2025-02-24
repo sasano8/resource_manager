@@ -1,0 +1,146 @@
+---
+envirnoment:
+  connectors:
+    postgres-1:
+      type: psycopg2
+      params:
+        dbname: "{{ db_name | default('dev') }}"
+        user: "{{ db_user | default('admin') }}"
+        password: "{{ db_password | default('password') }}"
+        host: "{{ db_host | default('localhost') }}"
+        port: "{{ db_port | default(5432) }}"
+
+  version: "1970-01-01T00:00:00Z"
+  name: dev
+  resources:
+    # risingwave-s3:
+    #   description: "init"
+    #   module: s3
+    #   connector:
+    #     type: json
+    #     conn: "${SECRET_S3_CRED}"
+    #   resource:
+    #     - state: "created"
+    #       type: "bucket"
+    #         name: "hummock001"
+
+    # iceberg-s3:
+    #   description: "init"
+    #   module: s3
+    #   connector:
+    #     type: json
+    #     conn: "${SECRET_S3_CRED}"
+    #   resource:
+    #     - state: "created"
+    #       type: "bucket"
+    #         name: "warehouse"
+
+    # mlflow-s3:
+    #   description: "init"
+    #   module: s3
+    #   connector:
+    #     type: json
+    #     conn: "${SECRET_S3_CRED}"
+    #   resource:
+    #     - state: "created"
+    #       type: "bucket"
+    #         name: "mlflow"
+
+    
+
+    db-rw-source-postgres:
+      description: "init"
+      state: "created"
+      module: Psycopg2Adapter
+      connector:
+        type: Psycopg2Adapter
+        params:
+          dbname: "dev"
+          user: "admin"
+          password: "password"
+          host: "localhost"
+          port: "5432"
+      params:
+        type: source
+        name: pg_dev
+        with:
+          connector: 'postgres-cdc',
+          hostname: 'postgres',
+          port: '5432',
+          username: 'admin',
+          password: 'password',
+          database.name: 'dev',
+          # auto.schema.change: 'true' -- 有料版のみ
+
+    # mlflow 起動前に作成する
+    db-postgres-schema-mlflow_catalog:
+      description: "init"
+      module: sql
+      state: "created"
+      params:
+        type: schema
+        name: mlflow_catalog
+      connector:
+        type: psycopg2
+        params:
+          dbname: "dev"
+          user: "admin"
+          password: "password"
+          host: "localhost"
+          port: "5432"
+
+    # mlflow 起動後でないとリソースを作成できない
+    db-rw-table-registered_model_aliases:
+      description: "init"
+      module: sql
+      state: "created"
+      params:
+        type: table
+        name: registered_model_aliases
+        primarykey:
+          - name
+          - alias
+        columns:
+          alias: text
+          version: integer,
+          name: text,
+        includes:
+          timestamp: modified_at
+          DATABASE_NAME: db_name
+          SCHEMA_NAME: schema_name
+          table_name: table_name
+        external:
+          from: pg_mydb
+          table: mlflow_catalog.registered_model_aliases
+          
+
+
+
+
+
+CREATE TABLE registered_model_aliases(alias text, version integer, name text, PRIMARY KEY(name, alias))
+  INCLUDE timestamp AS modified_at
+  INCLUDE DATABASE_NAME as db_name
+  INCLUDE SCHEMA_NAME as schema_name
+  INCLUDE table_name as table_name
+  FROM pg_mydb TABLE 'mlflow_catalog.registered_model_aliases';
+
+
+envirnoment:
+  version: "1970-01-01T00:00:00Z"
+  name: default
+  resources:
+    testfile:
+      description: "init"
+      state: "recreated"
+      module: file
+      params:
+        path: "test.txt"
+        content: "test!!!"
+      wait_time: 0
+
+
+# dev=# SHOW wal_level;
+#  wal_level 
+# -----------
+#  logical

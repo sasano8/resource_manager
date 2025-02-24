@@ -1,0 +1,53 @@
+---
+envirnoment:
+  version: "1970-01-01T00:00:00Z"
+  name: dev
+  resources:
+    risingwave-s3:
+      description: "init"
+      module: s3
+      connector:
+        type: json
+        conn: "${SECRET_S3_CRED}"
+      resource:
+        - state: "created"
+          type: "bucket"
+            name: "hummock001"
+
+    iceberg-s3:
+      description: "init"
+      module: s3
+      connector:
+        type: json
+        conn: "${SECRET_S3_CRED}"
+      resource:
+        - state: "created"
+          type: "bucket"
+            name: "warehouse"
+
+    mlflow-s3:
+      description: "init"
+      module: s3
+      connector:
+        type: json
+        conn: "${SECRET_S3_CRED}"
+      resource:
+        - state: "created"
+          type: "bucket"
+            name: "mlflow"
+
+    mlflow-postgres:
+      description: "init"
+      module: sqlalchemy
+      connector:
+        type: str
+        conn: "${SECRET_POSTGRE_CRED}"
+      resource:
+        - state: "created"  # exists, absent
+          type: "schema"
+            name: "mlflow"
+
+# dev=# SHOW wal_level;
+#  wal_level 
+# -----------
+#  logical

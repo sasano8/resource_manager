@@ -1,0 +1,15 @@
+# import fsspec
+# fs = fsspec.filesystem('ftp', host=host, port=port, username=user, password=pw)
+# fsspec.available_protocols()
+# ['abfs', 'adl', 'arrow_hdfs', 'asynclocal', 'az', 'blockcache', 'box', 'cached', 'dask', 'data', 'dbfs', 'dir', 'dropbox', 'dvc', 'file', 'filecache', 'ftp', 'gcs', 'gdrive', 'generic', 'git', 'github', 'gs', 'hdfs', 'hf', 'http', 'https', 'jlab', 'jupyter', 'lakefs', 'libarchive', 'local', 'memory', 'oci', 'ocilake', 'oss', 'reference', 'root', 's3', 's3a', 'sftp', 'simplecache', 'smb', 'ssh', 'tar', 'tosfs', 'wandb', 'webdav', 'webhdfs', 'zip']
+
+fsspec-local:
+  description: "init"
+  state: "recreated"
+  module: fsspec
+  connector:
+    protocol: local
+  params:
+    path: "./cache/fsspec/local/test.txt"
+    content: "test!!!"
+  wait_time: 0
