@@ -117,7 +117,6 @@ def test_dir():
         assert op.absent()
 
 
-
 def test_file():
     from tempfile import TemporaryDirectory
 
@@ -134,8 +133,6 @@ def test_file():
         assert res.deleted()
         assert not res.exists()
         assert res.absent()
-
-
 
 
 def test_manifest():

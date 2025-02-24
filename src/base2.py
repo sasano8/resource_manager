@@ -57,29 +57,29 @@ class StepDataExtension:
         res_cls: HasOperator = _registry.get_cls(step["module"]["type"])
         if not res_cls:
             raise RuntimeError()
-        
+
         operator_cls = res_cls.get_operator(step["module"]["subtype"])
         operator: Operator = operator_cls(**connector)
         executor = CliExecutor()
         return executor.execute(operator, state, step["module"]["params"])
+
 
 class Module:
     @classmethod
     def validate(cls, data: dict):
         if not isinstance(data, dict):
             raise TypeError()
-        
+
         new_data = {
             "type": data.get("type", ""),
             "subtype": data.get("subtype", "default"),
-            "params": data.get("params", {})
+            "params": data.get("params", {}),
         }
 
         if not new_data["type"]:
             raise TypeError()
 
         return new_data
-
 
 
 class CliExecutor:

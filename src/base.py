@@ -15,6 +15,7 @@ class StepData(TypedDict):
     params: dict
     wait_time: float
 
+
 class HasOperator:
     @classmethod
     def get_operator(cls, type: str):

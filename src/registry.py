@@ -1,6 +1,7 @@
 from . import modules as mo
 from .base import HasOperator
 
+
 class Registry:
     """Manifest と type をマッピングする"""
 
