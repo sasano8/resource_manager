@@ -10,10 +10,11 @@ ERROR_NOT_SUPPORT = "Not Supported Error"
 class StepData(TypedDict):
     name: str
     description: str
+    state: str
+    forbit: list  # createt, deleted, recreated など行っていけないアクションを指定する
     untracked: (
         bool  # リソースを管理しない（チェックなども行わず、完全に副作用を回避する）
     )
-    state: str
     connector: dict
     module: dict
     wait_time: float
