@@ -1,5 +1,5 @@
 import yaml
-from .base import StepData, Resource, execute
+from .base import StepData, Resource, execute, HasOperator
 from .registry import _registry
 
 
@@ -51,14 +51,35 @@ class StepDataExtension:
     def apply(self, massage: str = " must be {state} but: {str(err)}"):
         step = self._step
         state = step["state"]
-        module = step["module"]
-        res_cls = _registry.get_cls(module)
+        connector = step.get("connector", {})
+        step["module"] = Module.validate(step["module"])
+
+        res_cls: HasOperator = _registry.get_cls(step["module"]["type"])
         if not res_cls:
             raise RuntimeError()
-
-        resource: Resource = res_cls(**step["connector"])
+        
+        operator_cls = res_cls.get_operator(step["module"]["subtype"])
+        operator: Resource = operator_cls(**connector)
         executor = CliExecutor()
-        return executor.execute(resource, state, step["params"])
+        return executor.execute(operator, state, step["module"]["params"])
+
+class Module:
+    @classmethod
+    def validate(cls, data: dict):
+        if not isinstance(data, dict):
+            raise TypeError()
+        
+        new_data = {
+            "type": data.get("type", ""),
+            "subtype": data.get("subtype", "default"),
+            "params": data.get("params", {})
+        }
+
+        if not new_data["type"]:
+            raise TypeError()
+
+        return new_data
+
 
 
 class CliExecutor:

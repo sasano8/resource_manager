@@ -1,8 +1,8 @@
 import pytest
 from src.modules.mock import TrueResource, FalseResource
-from src.modules.file import FsspecOperator
+from src.modules.file import FsspecDefaultOperator, FsspecFileOperator
 from src.base2 import StepDataExtension
-from src.base import Resource, Executable
+from src.base import Resource, Executable, HasOperator
 
 
 def get_capability(cls: type):
@@ -14,7 +14,7 @@ def get_capability(cls: type):
     }
 
 
-types = [FsspecOperator, TrueResource, FalseResource]
+types = [FsspecDefaultOperator, TrueResource, FalseResource]
 
 
 class PartialOperator:
@@ -103,25 +103,7 @@ def test_file():
 
     with TemporaryDirectory() as td:
         params = {"path": td + "/file_test.txt"}
-        res = PartialExecutor(FsspecOperator("local").to_executor(), params)
-        # base scenario
-        print()
-        assert not res.exists()
-        assert res.absent()
-        assert res.created()
-        assert res.exists()
-        assert not res.absent()
-        assert res.deleted()
-        assert not res.exists()
-        assert res.absent()
-
-
-def test_file():
-    from tempfile import TemporaryDirectory
-
-    with TemporaryDirectory() as td:
-        params = {"path": td + "/file_test.txt"}
-        res = PartialExecutor(FsspecOperator("local").to_executor(), params)
+        res = PartialExecutor(FsspecFileOperator("local").to_executor(), params)
         # base scenario
         print()
         assert not res.exists()
@@ -135,43 +117,18 @@ def test_file():
 
 
 def test_manifest():
-    """
-    fsspec-local:
-        description: "init"
-        state: "recreated"
-        module: fsspec
-            connector:
-                protocol: local
-            resource:
-                file:
-                    path: ".cache/fsspec/local/test.txt"
-                    content: "test!!!"
-        wait_time: 0
-    """
-
-    """
-    fsspec-local:
-        description: "init"
-        state: "recreated"
-        module: fsspec
-            connector:
-                protocol: local
-            resource:
-                dir:
-                    path: ".cache/fsspec/local"
-        wait_time: 0
-    """
-
     _ = """
     fsspec-local:
         description: "init"
         state: "recreated"
-        module: fsspec
         connector:
             protocol: local
-        params:
-            path: ".cache/fsspec/local/test.txt"
-            content: "test!!!"
+        module:
+            type: fsspec
+            subtype: file
+            params:
+                path: ".cache/fsspec/local/test.txt"
+                content: "test!!!"
         wait_time: 0
     """
 

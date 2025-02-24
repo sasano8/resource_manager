@@ -15,8 +15,16 @@ class StepData(TypedDict):
     params: dict
     wait_time: float
 
+class HasOperator:
+    @classmethod
+    def get_operator(cls, type: str):
+        if type == "default":
+            return cls
+        else:
+            raise TypeError()
 
-class Resource:
+
+class Resource(HasOperator):
     def to_executor(self):
         return Executable(self)
 
