@@ -14,3 +14,12 @@
 ## recreate
 
 destroy 実行後に、init を実行します。
+
+
+
+# 開発に貢献する
+
+
+```
+pre-commit install
+```

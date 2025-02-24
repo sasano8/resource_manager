@@ -4,6 +4,13 @@ from fsspec import AbstractFileSystem
 
 
 class FsspecRootOperator(Operator):
+    def __init__(self, protocol, **kwargs):
+        self._protocol = protocol
+        self._kwargs = kwargs
+
+    def get_filesystem(self) -> AbstractFileSystem:
+        return fsspec.filesystem(self._protocol, **self._kwargs)
+
     @staticmethod
     def get_operator(type: str):
         if type == "file":
@@ -14,14 +21,7 @@ class FsspecRootOperator(Operator):
             raise TypeError()
 
 
-class FsspecFileOperator(Operator):
-    def __init__(self, protocol, **kwargs):
-        self._protocol = protocol
-        self._kwargs = kwargs
-
-    def get_filesystem(self) -> AbstractFileSystem:
-        return fsspec.filesystem(self._protocol, **self._kwargs)
-
+class FsspecFileOperator(FsspecRootOperator):
     def create(self, path: str, content: str = "", *args, **kwargs):
         fs = self.get_filesystem()
         directory = "/".join(path.split("/")[:-1])
@@ -55,14 +55,7 @@ class FsspecFileOperator(Operator):
             return True, ""
 
 
-class FsspecDirOperator(Operator):
-    def __init__(self, protocol, **kwargs):
-        self._protocol = protocol
-        self._kwargs = kwargs
-
-    def get_filesystem(self) -> AbstractFileSystem:
-        return fsspec.filesystem(self._protocol, **self._kwargs)
-
+class FsspecDirOperator(FsspecRootOperator):
     def create(self, path: str, *args, **kwargs):
         fs = self.get_filesystem()
         if not fs.exists(path):
