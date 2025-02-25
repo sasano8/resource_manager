@@ -2,6 +2,7 @@ import pytest
 from src.modules.mock import TrueOperator, FalseOperator
 from src.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
 from src.modules.db import Psycopg2SchemaOperator
+from src.modules.s3 import PolicyController
 from src.base2 import StepDataExtension
 from src.base import Operator, Executable, HasOperator
 
@@ -167,6 +168,28 @@ def test_schema():
     assert op.absent()
 
 
+def test_s3_bucket_policy():
+    conn = {
+        "protocol": "s3",
+        "endpoint_url": "http://localhost:9000",
+        "key": "admin",
+        "secret": "password",
+    }
+    params = {"bucket": "test-cache", "path": "testfile.txt"}
+    op = PartialExecutor(FsspecFileOperator(**conn).to_executor(), params)
+    assert op.created()
+
+    conn = {
+        "service_name": "s3",
+        "endpoint_url": "http://localhost:9000",
+        "aws_access_key_id": "admin",
+        "aws_secret_access_key": "password",
+    }
+    params = {"bucket_name": "test-cache", "policy_name": "public"}
+    op = PartialExecutor(PolicyController(**conn).to_executor(), params)
+    assert op.created()
+
+
 def test_manifest():
     _ = """
     fsspec-local:
@@ -225,6 +248,8 @@ def test_manifest():
                 bucket: test-cache
                 path: "fsspec/s3/test.txt"
                 content: "test"
+        timeout: 100
+        retry: 3
         wait_time: 0
     """
 
