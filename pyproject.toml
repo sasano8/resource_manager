@@ -1,6 +1,6 @@
 [project]
 name = "rctl"
-version = "0.1.0"
+version = "0.1.1"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -9,20 +9,29 @@ dependencies = [
     "fsspec>=2025.2.0",
     "jinja2>=3.1.5",
     "pydantic>=2.10.6",
-    # extra
-    "hvac>=2.3.0", # vault
     "s3fs>=2025.2.0", # fsspec[s3]
     "psycopg2-binary>=2.9.10",
-    # rest api
-    "fastapi>=0.115.8",
-    "sqlmodel>=0.0.22",
-    "uvicorn>=0.34.0",
-    # dev
-    "pre-commit>=4.1.0",
-    "black>=25.1.0",
-    "pytest>=8.3.4",
-    "ruff>=0.9.7",
     "boto3>=1.36.23",
     "s3transfer>=0.11.2",
     "typer>=0.15.1",
 ]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+    "black>=25.1.0",
+    "pytest>=8.3.4",
+    "ruff>=0.9.7",
+]
+server = [
+    "fastapi>=0.115.8",
+    "sqlmodel>=0.0.22",
+    "uvicorn>=0.34.0",
+]
+vault = [
+    "hvac>=2.3.0", # vault
+]
+
+
+[project.scripts]
+rctl = "src.__main__:main"

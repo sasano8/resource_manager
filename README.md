@@ -1,4 +1,4 @@
-# ResMgr
+# rctl
 
 接続情報、機密情報の管理や、リソースの状態管理が面倒だ。
 そういったものを管理できる仕組みを作る。
@@ -19,6 +19,9 @@ destroy 実行後に、init を実行します。
 
 # 開発に貢献する
 
+```
+make sync-dev
+```
 
 ```
 pre-commit install
@@ -27,11 +30,15 @@ pre-commit install
 
 # CLI
 
+```
+uv tool run rctl
+```
+
 次のようにリソースの状態を適用することができます。
 指定するパスがディレクトリの場合、再帰的に yml ファイルを読み取りリソースの状態を適用します。
 
 ```
-resctl resource apply -f resources/
+rctl resource apply -f resources/
 ```
 
 - は標準入力から読み取るという docker で用意された機能
