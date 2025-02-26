@@ -1,6 +1,6 @@
 [project]
 name = "rctl"
-version = "0.1.1"
+version = "0.1.4"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -33,5 +33,8 @@ vault = [
 ]
 
 
+[tool.setuptools]
+packages = { find = { include = ["rctl*"] } }
+
 [project.scripts]
-rctl = "src.__main__:main"
+rctl = "rctl.__main__:main"

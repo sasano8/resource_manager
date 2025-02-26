@@ -19,5 +19,6 @@ _registry = Registry(
         "false": mo.TrueOperator,
         "fsspec": mo.FsspecRootOperator,
         "psycopg2": mo.Psycopg2SchemaOperator,
+        "boto3": mo.Boto3Controller,
     }
 )
