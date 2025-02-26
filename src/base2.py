@@ -46,7 +46,7 @@ class StepDataExtension:
 
     def override(self, state: str):
         new_value = {**self._step, "state": state}
-        return StepDataExtension(new_value)
+        return self.__class__(new_value)
 
     def apply(self, massage: str = " must be {state} but: {str(err)}"):
         step = self._step
