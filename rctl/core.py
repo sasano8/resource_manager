@@ -1,4 +1,4 @@
-from src.base2 import StepDataExtension
+from rctl.base2 import StepDataExtension
 
 
 def apply_resource(from_file: str = None):

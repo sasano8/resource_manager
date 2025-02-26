@@ -1,10 +1,10 @@
 import pytest
-from src.modules.mock import TrueOperator, FalseOperator
-from src.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
-from src.modules.db import Psycopg2SchemaOperator
-from src.modules.s3 import PolicyController
-from src.base2 import StepDataExtension
-from src.base import Operator, Executable, HasOperator
+from rctl.modules.mock import TrueOperator, FalseOperator
+from rctl.modules.file import FsspecRootOperator, FsspecFileOperator, FsspecDirOperator
+from rctl.modules.db import Psycopg2SchemaOperator
+from rctl.modules.s3 import PolicyController
+from rctl.base2 import StepDataExtension
+from rctl.base import Operator, Executable, HasOperator
 
 
 def get_capability(cls: type):

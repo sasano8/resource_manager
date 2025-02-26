@@ -1,5 +1,5 @@
 from .core import AppTyper
-from src.core import (
+from rctl.core import (
     apply_resource,
     create_resource,
     exists_resource,
