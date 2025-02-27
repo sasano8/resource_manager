@@ -1,6 +1,6 @@
 [project]
 name = "rctl"
-version = "0.1.4"
+version = "0.1.5"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -38,3 +38,4 @@ packages = { find = { include = ["rctl*"] } }
 
 [project.scripts]
 rctl = "rctl.__main__:main"
+
