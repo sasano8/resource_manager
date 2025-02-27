@@ -29,6 +29,8 @@ class FsspecRootOperator(Operator):
             return FsspecFileOperator
         elif type == "dir":
             return FsspecDirOperator
+        elif type == "bucket":
+            return FsspecBucketOperator
         else:
             raise TypeError()
 
@@ -102,6 +104,41 @@ class FsspecDirOperator(FsspecRootOperator):
     def absent(self, path: str, bucket: str = "", *args, **kwargs):
         fs = self.get_filesystem()
         p = safe_join(bucket, path)
+        if fs.exists(p):
+            return False, f"Exists {str(p)}"
+        else:
+            return True, ""
+
+
+class FsspecBucketOperator(FsspecRootOperator):
+    def create(self, bucket: str, *args, **kwargs):
+        fs = self.get_filesystem()
+        p = safe_join(bucket)
+        fs.mkdir(p)
+        if not fs.exists(p):
+            fs.mkdirs(p, exist_ok=True)
+        return True, ""
+
+    def delete(self, bucket: str, *args, **kwargs):
+        fs = self.get_filesystem()
+        p = safe_join(bucket)
+        fs.rmdir(p)
+        return True, ""
+
+    def exists(self, bucket: str, *args, **kwargs):
+        fs = self.get_filesystem()
+        p = safe_join(bucket)
+        if fs.exists(p):
+            if fs.isdir(p):
+                return True, ""
+            else:
+                return False, f"Not directory."
+        else:
+            return False, f"Not Exists {str(p)}"
+
+    def absent(self, bucket: str, *args, **kwargs):
+        fs = self.get_filesystem()
+        p = safe_join(bucket)
         if fs.exists(p):
             return False, f"Exists {str(p)}"
         else:
