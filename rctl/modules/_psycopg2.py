@@ -1,11 +1,9 @@
 from ..base import Operator
+from ..exceptions import NoRecordError
 
 import psycopg2
 from psycopg2 import sql
 import traceback
-
-
-class NoRecordError(Exception): ...
 
 
 class Psycopg2SchemaOperator(Operator):
@@ -125,14 +123,3 @@ def execute(conn, stmt, params: tuple = tuple()):
         except Exception as e:
             return False, f"{str(e)}\n{traceback.format_exc()}"
         return True, ""
-
-
-def assert_value(ok, result_or_error, expect, errmsg: str = "error"):
-    if ok:
-        ok = result_or_error == expect
-        if ok:
-            return ok, ""
-        else:
-            return False, errmsg
-    else:
-        return False, errmsg

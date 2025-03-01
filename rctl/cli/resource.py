@@ -6,6 +6,7 @@ from rctl.core import (
     absent_resource,
     recreate_resource,
     delete_resource,
+    scan_resource,
 )
 
 app = AppTyper()
@@ -17,3 +18,4 @@ app.command("exists")(exists_resource)
 app.command("absent")(absent_resource)
 app.command("delete")(delete_resource)
 app.command("recreate")(recreate_resource)
+app.command("scan")(scan_resource)

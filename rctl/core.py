@@ -1,5 +1,6 @@
 from rctl.base2 import StepDataExtension
 from .scanner import scan_files
+import os
 
 
 def scan(from_file: str = None, from_dir: str = None):
@@ -46,6 +47,11 @@ def recreate_resource(from_file: str = None, from_dir: str = None):
     for f in scan(from_file, from_dir):
         step = StepDataExtension.from_file(f).override(state="recreated")
         step.apply()
+
+
+def scan_resource(from_file: str = None, from_dir: str = "."):
+    for f in scan(from_file, from_dir):
+        print(f)
 
 
 def apply_manifest(): ...
