@@ -1,6 +1,5 @@
 from rctl.base2 import StepDataExtension
 from .scanner import scan_files
-import os
 
 
 def scan(from_file: str = None, from_dir: str = None):

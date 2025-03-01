@@ -2,10 +2,8 @@ import typer
 
 
 def main():
-    from .cli import resource
+    from .cli._main import app
 
-    app = typer.Typer(no_args_is_help=True)
-    app.add_typer(resource.app, name="resource")
     app()
 
 
