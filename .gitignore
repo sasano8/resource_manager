@@ -19,3 +19,4 @@ wheels/
 .vscode
 docker-compose.override.yml
 test-cache
+dag_viewer.html

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple d3js Viewer</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body { font-family: sans-serif; }
+    .node rect { fill: #1f77b4; rx: 5; ry: 5; }
+    .node text { fill: white; font-size: 14px; pointer-events: none; dominant-baseline: middle; text-anchor: middle; }
+    .link { stroke: #999; stroke-opacity: 0.6; marker-end: url(#arrow); }
+    .divider { stroke: #ccc; stroke-width: 2; stroke-dasharray: 5,5; }
+    svg { width: 100%; border: 1px solid #ccc; display: block; overflow: visible; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center">d3js Viewer</h2>
+  <svg></svg>
+
+  <script>
+    const graph = {{ graph_json }};
+
+    const svg = d3.select("svg"),
+          width = window.innerWidth,
+          height = window.innerHeight;
+
+    svg.append("defs").append("marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 30)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+      .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#999");
+
+    const parents = new Map();
+    const childrenMap = new Map();
+    const nodeMap = new Map();
+
+    graph.nodes.forEach(n => {
+      parents.set(n.id, []);
+      childrenMap.set(n.id, []);
+      nodeMap.set(n.id, n);
+    });
+    graph.edges.forEach(e => {
+      parents.get(e.target).push(e.source);
+      childrenMap.get(e.source).push(e.target);
+    });
+
+    const placed = new Set();
+    const xSpacing = 180, ySpacing = 120;
+    let currentY = 40;
+    const groupBounds = [];
+
+    function layoutNode(id, x, y) {
+      const node = nodeMap.get(id);
+      node.fx = x;
+      node.fy = y;
+      placed.add(id);
+    }
+
+    function layoutSequential(rootId, x, yStart) {
+      layoutNode(rootId, x, yStart);
+      let y = yStart;
+      for (const child of childrenMap.get(rootId)) {
+        if (placed.has(child)) continue;
+        y += ySpacing;
+        layoutNode(child, x, y);
+        y = layoutSequential(child, x, y) || y;
+      }
+      return y;
+    }
+
+    function layoutParallel(rootId, x, y) {
+      layoutNode(rootId, x, y);
+      const children = childrenMap.get(rootId).filter(id => !placed.has(id));
+      const totalWidth = (children.length - 1) * xSpacing;
+      const childY = y + ySpacing;
+      children.forEach((childId, i) => {
+        const childX = x - totalWidth / 2 + i * xSpacing;
+        layoutNode(childId, childX, childY);
+      });
+      return childY + ySpacing;
+    }
+
+    const roots = graph.nodes.filter(n => parents.get(n.id).length === 0);
+
+    for (const root of roots) {
+      if (placed.has(root.id)) continue;
+      const childCount = childrenMap.get(root.id).length;
+      const groupStartY = currentY;
+
+      if (childCount === 1) {
+  currentY = layoutSequential(root.id, width / 2, groupStartY);
+  currentY += 40; // グループ間の最小スペース
+} else if (childCount > 1) {
+  currentY = layoutParallel(root.id, width / 2, groupStartY);
+  currentY += 40;
+} else {
+  layoutNode(root.id, width / 2, groupStartY);
+  currentY += ySpacing; // ← ySpacing 1つ分で十分
+}
+
+      const groupEndY = currentY;
+      groupBounds.push([groupStartY - 40, groupEndY + 40]);
+      currentY += 80;
+    }
+
+    graph.nodes.forEach(n => {
+      if (!placed.has(n.id)) {
+        layoutNode(n.id, width / 2, currentY);
+        currentY += ySpacing;
+      }
+    });
+
+    const link = svg.append("g")
+      .attr("stroke", "#999")
+      .attr("stroke-opacity", 0.6)
+      .selectAll("line")
+      .data(graph.edges)
+      .join("line")
+      .attr("class", "link")
+      .attr("stroke-width", 2)
+      .attr("marker-end", "url(#arrow)");
+
+    const node = svg.append("g")
+      .selectAll("g")
+      .data(graph.nodes)
+      .join("g")
+      .attr("class", "node")
+      .call(d3.drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
+
+    node.each(function(d) {
+      const group = d3.select(this);
+      const text = group.append("text").text(d.id);
+      const bbox = text.node().getBBox();
+      group.insert("rect", "text")
+        .attr("x", -bbox.width / 2 - 10)
+        .attr("y", -bbox.height / 2 - 4)
+        .attr("width", bbox.width + 20)
+        .attr("height", bbox.height + 8);
+    });
+
+    link
+      .attr("x1", d => nodeMap.get(d.source).fx)
+      .attr("y1", d => nodeMap.get(d.source).fy)
+      .attr("x2", d => nodeMap.get(d.target).fx)
+      .attr("y2", d => nodeMap.get(d.target).fy);
+
+    node.attr("transform", d => `translate(${d.fx},${d.fy})`);
+
+    // Add group bounding lines (dividers before and after each group)
+    svg.append("g")
+      .selectAll("line.divider")
+      .data(groupBounds.flat())
+      .join("line")
+      .attr("class", "divider")
+      .attr("x1", 0)
+      .attr("x2", width)
+      .attr("y1", d => d)
+      .attr("y2", d => d);
+
+    function dragstarted(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+      d3.select(this).attr("transform", `translate(${d.fx},${d.fy})`);
+      link
+        .filter(l => l.source === d.id || l.target === d.id)
+        .attr("x1", l => nodeMap.get(l.source).fx)
+        .attr("y1", l => nodeMap.get(l.source).fy)
+        .attr("x2", l => nodeMap.get(l.target).fx)
+        .attr("y2", l => nodeMap.get(l.target).fy);
+    }
+
+    function dragended(event, d) {
+      // ノードの固定を維持
+    }
+
+    const maxY = Math.max(...graph.nodes.map(n => n.fy)) + 150;
+    svg.attr("height", maxY);
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+start: statement*
+
+statement: assignment | group_block
+
+assignment.10: attr? identifier (":" type_expr)? EQ expression
+type_expr: identifier ("[" STRING "]")?
+
+group_block: attr? identifier group_type block
+
+attr: "@" "{" attr_body? "}"
+attr_body: (pair ("," pair)* ","?)?
+
+GROUP_TYPE.10: "Sequential" | "Parallel"
+group_type: GROUP_TYPE
+
+block: "{" statement* "}"
+
+
+
+// ----------------------
+// Expressions
+// ----------------------
+?expression: atom
+
+atom: object
+    | array
+    | STRING
+    | SIGNED_NUMBER
+    | identifier
+
+object: "{" (pair ("," pair)* ","?)? "}"
+pair: (identifier | STRING) (EQ | ":") pair_value
+pair_value: expression
+
+array: "[" (expression ("," expression)* ","?)? "]"
+
+identifier: /[a-zA-Z_][a-zA-Z0-9_-]*/
+
+EQ: "="
+LPAR: "("
+RPAR: ")"
+
+STRING: /"(\\.|[^"\\])*"/
+
+%import common.SIGNED_NUMBER
+%import common.WS
+%ignore WS
+%ignore /#[^\n]*/
+%ignore /\/\/[^\n]*/
+%ignore /\/\*(.|\n)*?\*\//

@@ -16,6 +16,7 @@ dependencies = [
     "psycopg2-binary==2.9.9",
     "risingwave-py>=0.0.1", # psycopg2 2.9.9 でしか動かない
     "python-hcl2>=6.1.1",
+    "networkx>=3.4.2",
 ]
 
 [dependency-groups]
