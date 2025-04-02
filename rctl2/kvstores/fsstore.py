@@ -1,42 +1,38 @@
+from typing import Type
 from .abc import AbstractKVStore, Undefined
-
-import json
-import yaml
-
-
-class Serializer:
-    @classmethod
-    def load(cls, *args, **kwargs): ...
-
-    @classmethod
-    def dump(cls, *args, **kwargs): ...
-
-
-class JsonSerializer(Serializer):
-    load = json.load
-    dump = json.dump
-
-
-class YamlSerializer(Serializer):
-    load = yaml.safe_load
-    dump = yaml.safe_dump
+from .serializer import Serializer, JsonSerializer, YamlSerializer
 
 
 class FilesystemKVStore(AbstractKVStore):
-    def __init__(self, fs):
+    def __init__(self, fs, serializer_cls: Type[Serializer]):
         import fsspec
 
         self._fs: fsspec.AbstractFileSystem = fsspec.filesystem("file://./")
+        self._root = ""
+        self._serializer_cls = serializer_cls
 
-    @classmethod
-    def load(cls, f):
-        return JsonSerializer.load(f)
+    def load(self, f):
+        return self._serializer_cls.load(f)
+
+    def dump(self, f):
+        return self._serializer_cls.dump(f)
 
     def get(self, key, default=Undefined):
-        try:
-            opener = self._fs.open(key, "r")
-        except Exception as e:
-            raise
+        opener = self._fs.open(key, "r")
 
         with opener as f:
             return self.load(f)
+
+    def keys(self):
+        for path in self._fs.find(self._root):
+            yield path
+
+    def values(self):
+        for key, value in self.items():
+            yield value
+
+    def items(self):
+        for key in self.keys():
+            with self._fs.open(key, "r") as f:
+                data = self.load(f)
+            yield key, data
