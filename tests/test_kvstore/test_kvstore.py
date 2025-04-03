@@ -1,21 +1,25 @@
-from rctl2.kvstores import fsstore, serializers
+from rctl2.kvstores import serializers
 import fsspec
 from fsspec.core import url_to_fs
+
+from rctl2.kvstores.stores import fsstore
 
 
 def test_kvstore():
 
     print(fsspec.available_protocols())
 
-    serializer = serializers.TextSerializer()
-    fs, path = url_to_fs("dir::file://test-cache")
+    serializer = serializers.JsonSerializer()
+    fs, path = url_to_fs("dir::file://test_kvstore")
     handler = fsstore.FileHandler(fs, serializer)
 
     print(f"############# {path}")
     for k in handler.keys():
         print(k)
 
-    print(handler.get("fsspec/local/test.txt"))
+    # print(handler.get("fsspec/local/test.txt"))
+
+    print(handler.to_dict())
 
     # for k, v in handler.items(""):
     #     print((k, v))

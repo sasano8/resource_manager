@@ -1,2 +1,1 @@
-from .abc import AbstractKVStore
-from .dictstore import DictKVStore
+from .stores import AbstractKVStore, DictKVStore

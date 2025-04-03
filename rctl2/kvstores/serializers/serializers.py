@@ -52,14 +52,14 @@ class MultiSerializer(Serializer):
 
 class JsonSerializer(Serializer):
     extensions = {"json"}
-    load = json.load
-    dump = json.dump
+    load = staticmethod(json.load)
+    dump = staticmethod(json.dump)
 
 
 class YamlSerializer(Serializer):
     extensions = {"yaml", "yml"}
-    load = yaml.safe_load
-    dump = yaml.safe_dump
+    load = staticmethod(yaml.safe_load)
+    dump = staticmethod(yaml.safe_dump)
 
 
 class TomlSerializer(Serializer): ...
