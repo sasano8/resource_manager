@@ -2,7 +2,7 @@ from rctl2.kvstores import serializers
 import fsspec
 from fsspec.core import url_to_fs
 
-from rctl2.kvstores.stores import fsstore
+from rctl2.kvstores.stores import FileStore
 
 
 def test_kvstore():
@@ -11,7 +11,7 @@ def test_kvstore():
 
     serializer = serializers.JsonSerializer()
     fs, path = url_to_fs("dir::file://test_kvstore")
-    handler = fsstore.FileHandler(fs, serializer)
+    handler = FileStore(fs, serializer)
 
     print(f"############# {path}")
     for k in handler.keys():

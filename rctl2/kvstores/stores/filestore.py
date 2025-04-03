@@ -4,7 +4,7 @@ from .abc import Undefined
 from typing import Any
 
 
-class FileHandler:
+class FileStore:
     def __init__(self, fs: DirFileSystem, serializer: AbstractSerializer):
         self._fs = fs
         self._serializer = serializer
