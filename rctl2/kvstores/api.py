@@ -7,7 +7,6 @@ env1:
     params:
         root: ""
         prefix: ""
-        cache: true
 
 env2:
     store:
@@ -21,7 +20,7 @@ env3:
     store:
         type: dict
         params:
-            src: "env2"
+            src: "env2"  # 別のストアをソースとして参照可能（キャッシュとして機能）
     serializer:
         type: null
 """
