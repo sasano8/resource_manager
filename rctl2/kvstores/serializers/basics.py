@@ -49,7 +49,7 @@ class TomlSerializer(AbstractSerializer): ...
 
 
 class NullSerializer(AbstractSerializer):
-    extensions = {"txt"}
+    extensions = {"*"}
 
     def load(self, f):
         data = f.read()

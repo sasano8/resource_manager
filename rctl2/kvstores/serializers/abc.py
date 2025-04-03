@@ -13,4 +13,7 @@ class AbstractSerializer:
         if extension in self.extensions:
             return self
         else:
-            return None
+            if "*" in self.extensions:
+                return self
+            else:
+                return None
