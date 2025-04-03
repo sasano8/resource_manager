@@ -8,7 +8,7 @@ class MultiSerializer(AbstractSerializer):
         self._index = serializers
 
     @classmethod
-    def from_serializers(cls, *serializers):
+    def from_serializers(cls, *serializers: AbstractSerializer):
         index = {}
         for serializer in serializers:
             for ext in serializer.extensions:

@@ -1,4 +1,4 @@
-from .serializers import (
+from .basics import (
     AbstractSerializer,
     JsonSerializer,
     MultiSerializer,
