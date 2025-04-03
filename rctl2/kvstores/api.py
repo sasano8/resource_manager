@@ -25,3 +25,11 @@ env3:
     serializer:
         type: null
 """
+
+
+def create_from_path(config_path):
+    data = {}
+    return create_from_dict(data)
+
+
+def create_from_dict(): ...
