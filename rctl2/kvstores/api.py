@@ -1,6 +1,6 @@
 """
 env1:
-    protocol:
+    store:
         type: env
     serializer:
         type: null
@@ -10,17 +10,17 @@ env1:
         cache: true
 
 env2:
-    protocol:
-        type: file
+    store:
+        type: fsspec
     serializer:
         type: yaml
     params:
         root: ""
 
 env3:
-    protocol:
+    store:
         type: dict
-        options:
+        params:
             src: {"a": 1}
     serializer:
         type: null
