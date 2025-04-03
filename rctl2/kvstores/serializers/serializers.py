@@ -48,7 +48,7 @@ class YamlSerializer(AbstractSerializer):
 class TomlSerializer(AbstractSerializer): ...
 
 
-class TextSerializer(AbstractSerializer):
+class NullSerializer(AbstractSerializer):
     extensions = {"txt"}
 
     def load(self, f):

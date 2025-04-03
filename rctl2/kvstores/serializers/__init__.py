@@ -2,7 +2,7 @@ from .serializers import (
     AbstractSerializer,
     JsonSerializer,
     MultiSerializer,
-    TextSerializer,
+    NullSerializer,
     TomlSerializer,
     YamlSerializer,
 )
