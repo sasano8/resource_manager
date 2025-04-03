@@ -2,11 +2,11 @@ from os import environ
 from io import StringIO
 
 from .abc import AbstractKVStore, Undefined
-from ..serializers import Serializer
+from ..serializers import AbstractSerializer
 
 
 class EnvStore(AbstractKVStore):
-    def __init__(self, serializer: Serializer):
+    def __init__(self, serializer: AbstractSerializer):
         self._serializer = serializer
 
     def open(self, path, *args, **kwargs):

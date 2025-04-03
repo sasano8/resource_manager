@@ -1,27 +1,10 @@
 import json
 import yaml
+from .abc import AbstractSerializer
 
 
-class Serializer:
-    extensions: set = set([])
-
-    @classmethod
-    def load(cls, *args, **kwargs):
-        raise NotImplementedError()
-
-    @classmethod
-    def dump(cls, *args, **kwargs):
-        raise NotImplementedError()
-
-    def match(self, extension):
-        if extension in self.extensions:
-            return self
-        else:
-            return None
-
-
-class MultiSerializer(Serializer):
-    def __init__(self, serializers: dict[str, Serializer]):
+class MultiSerializer(AbstractSerializer):
+    def __init__(self, serializers: dict[str, AbstractSerializer]):
         self._index = serializers
 
     @classmethod
@@ -50,22 +33,22 @@ class MultiSerializer(Serializer):
         return serializer.dump(*args, **kwargs)
 
 
-class JsonSerializer(Serializer):
+class JsonSerializer(AbstractSerializer):
     extensions = {"json"}
     load = staticmethod(json.load)
     dump = staticmethod(json.dump)
 
 
-class YamlSerializer(Serializer):
+class YamlSerializer(AbstractSerializer):
     extensions = {"yaml", "yml"}
     load = staticmethod(yaml.safe_load)
     dump = staticmethod(yaml.safe_dump)
 
 
-class TomlSerializer(Serializer): ...
+class TomlSerializer(AbstractSerializer): ...
 
 
-class TextSerializer(Serializer):
+class TextSerializer(AbstractSerializer):
     extensions = {"txt"}
 
     def load(self, f):

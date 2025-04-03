@@ -1,11 +1,11 @@
-from ..serializers import Serializer
+from ..serializers import AbstractSerializer
 from fsspec.implementations.dirfs import DirFileSystem
 from .abc import Undefined
 from typing import Any
 
 
 class FileHandler:
-    def __init__(self, fs: DirFileSystem, serializer: Serializer):
+    def __init__(self, fs: DirFileSystem, serializer: AbstractSerializer):
         self._fs = fs
         self._serializer = serializer
 

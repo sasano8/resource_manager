@@ -1,5 +1,5 @@
 from .serializers import (
-    Serializer,
+    AbstractSerializer,
     JsonSerializer,
     MultiSerializer,
     TextSerializer,
