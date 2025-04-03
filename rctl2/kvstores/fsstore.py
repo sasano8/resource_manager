@@ -1,5 +1,6 @@
 from .serializers import Serializer
 from fsspec.implementations.dirfs import DirFileSystem
+from .abc import Undefined
 
 
 class FileHandler:
@@ -37,3 +38,15 @@ class FileHandler:
         for key in self.keys():
             data = self.load(key)
             yield key, data
+
+    def exists(self, path: str):
+        return self._fs.exists(path)
+
+    def get(self, path: str, default=Undefined):
+        if not self.exists(path):
+            if default is not Undefined:
+                return default
+            else:
+                raise KeyError(path)
+        else:
+            return self.load(path)

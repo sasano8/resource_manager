@@ -62,6 +62,9 @@ class YamlSerializer(Serializer):
     dump = yaml.safe_dump
 
 
+class TomlSerializer(Serializer): ...
+
+
 class TextSerializer(Serializer):
     extensions = {"txt"}
 

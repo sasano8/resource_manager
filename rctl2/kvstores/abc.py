@@ -1,8 +1,7 @@
 Undefined = object()
 
 
-class AbstractKVStore:
-    def flush(self): ...
+class AbstractKVStore: ...
 
 
 def load_from_fsspec(urlpath, format: str = "yaml", **kwargs):
