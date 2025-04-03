@@ -21,7 +21,7 @@ env3:
     store:
         type: dict
         params:
-            src: {"a": 1}
+            src: "env2"
     serializer:
         type: null
 """
