@@ -1,10 +1,10 @@
 from ..serializers import AbstractSerializer
 from fsspec.implementations.dirfs import DirFileSystem
-from .abc import Undefined
+from .abc import AbstractKVStore, Undefined
 from typing import Any
 
 
-class FileStore:
+class FileStore(AbstractKVStore):
     def __init__(self, fs: DirFileSystem, serializer: AbstractSerializer):
         self._fs = fs
         self._serializer = serializer
