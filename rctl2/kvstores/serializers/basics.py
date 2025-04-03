@@ -5,32 +5,22 @@ from .abc import AbstractSerializer
 
 class MultiSerializer(AbstractSerializer):
     def __init__(self, serializers: dict[str, AbstractSerializer]):
-        self._index = serializers
+        self._index: dict[str, AbstractSerializer] = serializers
 
     @classmethod
     def from_serializers(cls, *serializers: AbstractSerializer):
         index = {}
-        for serializer in serializers:
+        for serializer in reversed(serializers):
             for ext in serializer.extensions:
                 index[ext] = serializer
         return cls(index)
 
     def match(self, extension):
-        return self._index.get(extension, None)
-
-    def load_by_ext(self, ext, *args, **kwargs):
-        serializer = self.match(ext)
-        if not serializer:
-            raise NotImplementedError()
-
-        return serializer.load(*args, **kwargs)
-
-    def dump_by_ext(self, ext, *args, **kwargs):
-        serializer = self.match(ext)
-        if not serializer:
-            raise NotImplementedError()
-
-        return serializer.dump(*args, **kwargs)
+        serializer = self._index.get(extension, None)
+        if serializer:
+            return serializer
+        else:
+            return self._index.get("*", None)
 
 
 class JsonSerializer(AbstractSerializer):
