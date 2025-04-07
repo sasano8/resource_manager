@@ -1,6 +1,4 @@
 ---
-version: "3.9"
-
 services:
   postgres:
     image: postgres:14
@@ -27,8 +25,9 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "vaulttoken"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_ADDR: "http://127.0.0.1:8200"
+      VAULT_TOKEN: "vaulttoken"
     cap_drop:
       - IPC_LOCK  # センシティブなメモリ情報をロックする
     ports:
       - 8200:8200  # http://127.0.0.1:8200/ui
-    

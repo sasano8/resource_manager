@@ -4,6 +4,8 @@ from typing import Dict, List, Optional, Union, Any, BinaryIO, TextIO
 import os
 import json
 from io import BytesIO, StringIO
+from hvac.exceptions import InvalidPath
+from ..exceptions import AppError
 
 
 class VaultWriteIO:
@@ -220,8 +222,6 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
 
         self.mount_point = mount_point
 
-        self._connect()
-
     @classmethod
     def from_client(cls, mount_point, client, **kwargs):
         """
@@ -309,12 +309,14 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             **kwargs,
         )
 
-    def _connect(self):
+    def _authenticate(self):
         """
         Vaultサーバーに接続する
         """
-        if not self.is_authenticated():
-            raise ConnectionError("Vaultサーバーに接続できません")
+        try:
+            return self.client.is_authenticated()
+        except Exception as e:
+            raise AppError(f"Authentication failed: {self.client.url}") from e
 
     def is_authenticated(self) -> bool:
         """
@@ -326,8 +328,8 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             認証されている場合はTrue、そうでない場合はFalse
         """
         try:
-            return self.client.is_authenticated()
-        except Exception:
+            return self._authenticate()
+        except AppError:
             return False
 
     def _normalize_path(self, path):
@@ -338,13 +340,15 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         path = "/".join(filter(None, path.split("/")))
         return path
 
-    def _path_to_key(self, path: str) -> str:
-        """ファイルシステムのパスをVaultのキーに変換する"""
-        return self._normalize_path(path)
+    # 参照がないので削除
+    # def _path_to_key(self, path: str) -> str:
+    #     """ファイルシステムのパスをVaultのキーに変換する"""
+    #     return self._normalize_path(path)
 
-    def _key_to_path(self, key: str) -> str:
-        """Vaultのキーをファイルシステムのパスに変換する"""
-        return f"/{key}"
+    # 変化がない実装なので無効か
+    # def _key_to_path(self, key: str) -> str:
+    #     """Vaultのキーをファイルシステムのパスに変換する"""
+    #     return f"{key}"
 
     def _read_secret(self, path: str) -> Dict[str, Any]:
         """
@@ -367,7 +371,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         """
         try:
             return self.client.secrets.kv.v2.read_secret_version(
-                path=path, mount_point=self.mount_point
+                path=path, mount_point=self.mount_point, raise_on_deleted_version=True
             )
         except Exception as e:
             raise FileNotFoundError(f"Secret not found: {path}") from e
@@ -392,7 +396,27 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             path=path, secret=data, mount_point=self.mount_point
         )
 
-    def ls(self, path: str, detail: bool = True) -> List[Union[str, Dict[str, Any]]]:
+    def _ls(self, path: str, detail: bool = True, **kwargs):
+        try:
+            response = self.client.secrets.kv.v2.list_secrets(
+                path=path, mount_point=self.mount_point
+            )
+            items: list[str] = response["data"]["keys"]
+        except InvalidPath:
+            # 一つも存在しない場合、InvalidPath が返る
+            items = []
+
+        if detail:
+            for child in items:
+                key = f"{path.strip('/')}/{child}"
+                if key.endswith("/"):
+                    yield self._info_dir(key)
+                else:
+                    yield self.info(key)
+        else:
+            yield from items
+
+    def ls(self, path: str, detail: bool = True, **kwargs) -> list[str] | list[dict]:
         """
         指定されたパスの内容をリストする
 
@@ -408,51 +432,43 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         List[Union[str, Dict[str, Any]]]
             パスの内容
         """
-        try:
-            normalized_path = self._normalize_path(path)
-            response = self.client.secrets.kv.v2.list_secrets(
-                path=normalized_path, mount_point=self.mount_point
-            )
-            keys = response["data"]["keys"]
+        return [x for x in self._ls(path, detail, **kwargs)]
+
+    def _find(self, path: str, countdown: int):
+        countdown -= 1
+        if countdown < 0:
+            return
+        for x in self._ls(path, detail=True):
+            if x["name"].endswith("/"):
+                yield from self._find(x["name"], countdown=countdown)
+            else:
+                yield x
+
+    def _find2(self, path: str, maxdepth: int, withdirs=False, detail=False):
+        maxdepth = maxdepth or float("inf")
+
+        for x in self._find(path, maxdepth):
+            if not withdirs:
+                if x["name"].endswith("/"):
+                    continue
 
             if detail:
-                result = []
-                for key in keys:
-                    full_key = f"{normalized_path}/{key}" if normalized_path else key
-                    try:
-                        # シークレットのメタデータを取得
-                        metadata = self.client.secrets.kv.v2.read_secret_metadata(
-                            path=full_key, mount_point=self.mount_point
-                        )
-                        created_time = metadata["data"]["created_time"]
-                        result.append(
-                            {
-                                "name": self._key_to_path(full_key),
-                                "size": None,  # Vaultではサイズ情報がない
-                                "type": "file",
-                                "created": created_time,
-                                "modified": created_time,
-                            }
-                        )
-                    except:
-                        # メタデータが取得できない場合は基本情報のみ
-                        result.append(
-                            {
-                                "name": self._key_to_path(full_key),
-                                "size": None,
-                                "type": "file",
-                            }
-                        )
-                return result
+                yield x
             else:
-                return [
-                    self._key_to_path(
-                        f"{normalized_path}/{key}" if normalized_path else key
-                    )
-                    for key in keys
-                ]
-        except Exception:
-            return []
+                yield x["name"]
+
+    def find(self, path: str, maxdepth=None, withdirs=False, detail=False):
+        return [
+            x
+            for x in self._find2(
+                path, maxdepth=maxdepth, withdirs=withdirs, detail=detail
+            )
+        ]
+
+    def _info_dir(self, path: str) -> Dict[str, Any]:
+        """与えたパスをディレクトリとみなして、構造を返す"""
+        # normalized_path = self._normalize_path(path)
+        return {"name": path.strip("/") + "/", "size": None, "type": "dir"}
 
     def info(self, path: str) -> Dict[str, Any]:
         """
@@ -468,14 +484,14 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         Dict[str, Any]
             パスの情報
         """
-        normalized_path = self._normalize_path(path)
+        # normalized_path = self._normalize_path(path)
         try:
             metadata = self.client.secrets.kv.v2.read_secret_metadata(
-                path=normalized_path, mount_point=self.mount_point
+                path=path, mount_point=self.mount_point
             )
             created_time = metadata["data"]["created_time"]
             return {
-                "name": self._key_to_path(normalized_path),
+                "name": path.strip("/"),
                 "size": None,
                 "type": "file",
                 "created": created_time,
@@ -507,61 +523,61 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         except Exception:
             return False
 
-    def cat(self, path: str) -> Union[str, bytes]:
-        """
-        指定されたパスの内容を取得する
+    # def cat(self, path: str) -> Union[str, bytes]:
+    #     """
+    #     指定されたパスの内容を取得する
 
-        Parameters
-        ----------
-        path : str
-            内容を取得するパス
+    #     Parameters
+    #     ----------
+    #     path : str
+    #         内容を取得するパス
 
-        Returns
-        -------
-        Union[str, bytes]
-            パスの内容
-        """
-        response = self._read_secret(path)
-        return response["data"]["data"]["value"]
+    #     Returns
+    #     -------
+    #     Union[str, bytes]
+    #         パスの内容
+    #     """
+    #     response = self._read_secret(path)
+    #     return response["data"]["data"]["value"]
 
-    def get(self, rpath: str, lpath: str, **kwargs):
-        """
-        リモートパスからローカルパスにファイルをダウンロードする
+    # def get(self, rpath: str, lpath: str, **kwargs):
+    #     """
+    #     リモートパスからローカルパスにファイルをダウンロードする
 
-        Parameters
-        ----------
-        rpath : str
-            リモートパス
-        lpath : str
-            ローカルパス
-        **kwargs : dict
-            その他のパラメータ
-        """
-        content = self.cat(rpath)
-        with open(lpath, "wb" if isinstance(content, bytes) else "w") as f:
-            f.write(content)
+    #     Parameters
+    #     ----------
+    #     rpath : str
+    #         リモートパス
+    #     lpath : str
+    #         ローカルパス
+    #     **kwargs : dict
+    #         その他のパラメータ
+    #     """
+    #     content = self.cat(rpath)
+    #     with open(lpath, "wb" if isinstance(content, bytes) else "w") as f:
+    #         f.write(content)
 
-    def put(self, lpath: str, rpath: str, **kwargs):
-        """
-        ローカルパスからリモートパスにファイルをアップロードする
+    # def put(self, lpath: str, rpath: str, **kwargs):
+    #     """
+    #     ローカルパスからリモートパスにファイルをアップロードする
 
-        Parameters
-        ----------
-        lpath : str
-            ローカルパス
-        rpath : str
-            リモートパス
-        **kwargs : dict
-            その他のパラメータ
-        """
-        with open(lpath, "rb" if kwargs.get("binary", False) else "r") as f:
-            content = f.read()
+    #     Parameters
+    #     ----------
+    #     lpath : str
+    #         ローカルパス
+    #     rpath : str
+    #         リモートパス
+    #     **kwargs : dict
+    #         その他のパラメータ
+    #     """
+    #     with open(lpath, "rb" if kwargs.get("binary", False) else "r") as f:
+    #         content = f.read()
 
-        # バイナリモードの場合はデコード
-        if kwargs.get("binary", False):
-            content = content.decode()
+    #     # バイナリモードの場合はデコード
+    #     if kwargs.get("binary", False):
+    #         content = content.decode()
 
-        self._write_secret(rpath, content)
+    #     self._write_secret(rpath, content)
 
     def rm(self, path: str, recursive: bool = False, **kwargs):
         """
@@ -576,6 +592,9 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         **kwargs : dict
             その他のパラメータ
         """
+        if recursive:
+            raise NotImplementedError()
+
         normalized_path = self._normalize_path(path)
 
         try:
@@ -629,10 +648,10 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
                 # Vaultの応答をそのまま返す
                 if mode == "rb":
                     # バイナリモード
-                    return BytesIO(json.dumps(response).encode())
+                    return BytesIO(json.dumps(response["data"]["data"]).encode())
                 else:
                     # テキストモード
-                    return StringIO(json.dumps(response))
+                    return StringIO(json.dumps(response["data"]["data"]))
             except Exception as e:
                 raise FileNotFoundError(f"File not found: {path}") from e
         else:  # mode in ['w', 'wb']
