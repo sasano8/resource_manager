@@ -1,7 +1,9 @@
-from ..base import Operator
-import boto3
 import string
+
+import boto3
 from botocore.exceptions import ClientError
+
+from ..base import Operator
 
 
 class Boto3Controller(Operator):

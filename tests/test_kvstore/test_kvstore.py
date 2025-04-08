@@ -1,12 +1,11 @@
-from rctl2.kvstores import serializers
 import fsspec
 from fsspec.core import url_to_fs
 
+from rctl2.kvstores import serializers
 from rctl2.kvstores.stores import FileStore
 
 
 def test_kvstore():
-
     print(fsspec.available_protocols())
 
     serializer = serializers.JsonSerializer()

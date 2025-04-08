@@ -1,9 +1,11 @@
-from ..base import Operator
-import psycopg2
-from psycopg2 import sql
 import traceback
-from ..exceptions import NoRecordError
+
+import psycopg2
 import psycopg2.extras
+from psycopg2 import sql
+
+from ..base import Operator
+from ..exceptions import NoRecordError
 
 
 def format_value(value):

@@ -1,4 +1,5 @@
 import functools
+
 from lark import Lark
 
 from .files import PARSER_FILE

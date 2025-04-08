@@ -1,5 +1,6 @@
 import yaml
-from .base import StepData, Operator, execute, HasOperator
+
+from .base import HasOperator, Operator, StepData, execute
 from .registry import _registry
 
 

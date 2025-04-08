@@ -1,7 +1,9 @@
-from ..serializers import AbstractSerializer
-from fsspec.implementations.dirfs import DirFileSystem
-from .abc import AbstractKVStore, Undefined
 from typing import Any
+
+from fsspec.implementations.dirfs import DirFileSystem
+
+from ..serializers import AbstractSerializer
+from .abc import AbstractKVStore, Undefined
 
 
 class FileStore(AbstractKVStore):

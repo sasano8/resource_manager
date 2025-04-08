@@ -1,14 +1,14 @@
-from .core import AppTyper
 from rctl.core import (
+    absent_resource,
     apply_resource,
     create_resource,
-    exists_resource,
-    absent_resource,
-    recreate_resource,
     delete_resource,
+    exists_resource,
+    recreate_resource,
     scan_resource,
 )
 
+from .core import AppTyper
 
 app = AppTyper()
 

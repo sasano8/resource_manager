@@ -1,5 +1,6 @@
-import typer
 from typing import TYPE_CHECKING
+
+import typer
 
 if TYPE_CHECKING:
     AppTyper = typer.Typer

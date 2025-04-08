@@ -1,5 +1,7 @@
 import json
+
 import networkx
+
 from .files import TEMPLATE_GRAPH_HTML_FILE
 
 

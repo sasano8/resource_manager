@@ -1,7 +1,8 @@
 import typer
 
-from . import resource
 from rctl.api import version as _get_version
+
+from . import resource
 
 app = typer.Typer(no_args_is_help=True)
 app.add_typer(resource.app, name="resource")

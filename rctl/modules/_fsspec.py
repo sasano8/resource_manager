@@ -1,8 +1,9 @@
-from ..base import Operator
-import fsspec
-from fsspec import AbstractFileSystem
 from os import path as pathutil
 
+import fsspec
+from fsspec import AbstractFileSystem
+
+from ..base import Operator
 
 unsafes = {"~", "..", "*", "{", "}"}
 bucket_unsafes = {"/"}

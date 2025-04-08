@@ -1,7 +1,7 @@
+import hvac
 import pytest
 
 from rctl2.filesystems import VaultFileSystem
-import hvac
 
 RCTL2TEST_VALUT_URL = "http://127.0.0.1:8200"
 RCTL2TEST_VALUT_TOKEN = "vaulttoken"
@@ -14,7 +14,8 @@ class DockerComposeSericeManager:
         self._service_name = service_name
 
     def exists(self):
-        import subprocess, os
+        import os
+        import subprocess
 
         with open(os.devnull, "w") as devnull:
             result = subprocess.run(
@@ -38,7 +39,8 @@ class DockerComposeSericeManager:
 
     def up(self, sleep: int = 1):
         if not self.exists():
-            import subprocess, time
+            import subprocess
+            import time
 
             subprocess.run(["docker", "compose", "up", "-d", self._service_name])
             time.sleep(sleep)

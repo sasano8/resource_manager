@@ -1,7 +1,7 @@
-import os
-import heapq
 import fnmatch
-from typing import Iterator, List, Tuple, Optional
+import heapq
+import os
+from typing import Iterator, List, Optional, Tuple
 
 
 def scan_files(

@@ -1,8 +1,8 @@
-from .core import AppTyper
-from ..api import RctlWorkSpace
-
-import typer
 import click
+import typer
+
+from ..api import RctlWorkSpace
+from .core import AppTyper
 
 app = AppTyper()
 config = AppTyper()

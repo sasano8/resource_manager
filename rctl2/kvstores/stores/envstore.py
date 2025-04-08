@@ -1,8 +1,8 @@
-from os import environ
 from io import StringIO
+from os import environ
 
-from .abc import AbstractKVStore, Undefined
 from ..serializers import AbstractSerializer
+from .abc import AbstractKVStore, Undefined
 
 
 class EnvStore(AbstractKVStore):

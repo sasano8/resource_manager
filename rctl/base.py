@@ -1,8 +1,7 @@
-from typing import TypedDict
-from time import sleep
-from typing import Generator
 import inspect
 import traceback
+from time import sleep
+from typing import Generator, TypedDict
 
 ERROR_NOT_SUPPORT = "Not Supported Error"
 

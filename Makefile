@@ -16,5 +16,5 @@ sync-dev:
 	@uv sync --all-groups
 
 format:
-	@black .
-	
+	@uvx ruff@latest check . --select I --fix
+	@uvx ruff@latest format

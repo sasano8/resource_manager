@@ -1,9 +1,10 @@
-from ..base import Operator
-from ..exceptions import NoRecordError
+import traceback
 
 import psycopg2
 from psycopg2 import sql
-import traceback
+
+from ..base import Operator
+from ..exceptions import NoRecordError
 
 
 class Psycopg2SchemaOperator(Operator):

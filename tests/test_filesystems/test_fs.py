@@ -1,6 +1,7 @@
 import hvac
-from rctl2.filesystems import VaultFileSystem
 import pytest
+
+from rctl2.filesystems import VaultFileSystem
 
 
 def test_init():

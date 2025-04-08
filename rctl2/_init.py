@@ -32,8 +32,9 @@ def _register_filesystems() -> None:
     """
     fsspecにファイルシステム実装を登録する
     """
-    from .filesystems import VaultFileSystem
     import fsspec
+
+    from .filesystems import VaultFileSystem
 
     logger.info("Registering filesystem implementations...")
 

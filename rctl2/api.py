@@ -1,4 +1,5 @@
 from typing import Tuple
+
 from . import config
 
 
@@ -136,8 +137,9 @@ class RctlWorkSpace:
         return Result.ok()
 
     def config_show(self):
-        import yaml
         from io import StringIO
+
+        import yaml
 
         data = self._config.model_dump()
 
