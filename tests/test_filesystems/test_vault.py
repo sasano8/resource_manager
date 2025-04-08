@@ -2,7 +2,6 @@ import json
 from contextlib import contextmanager
 from datetime import datetime
 from io import BytesIO, StringIO
-from unittest.mock import MagicMock, patch
 
 import hvac
 import pytest
@@ -19,6 +18,41 @@ def skip_if_raises(reason, *exceptions):
     except exceptions as e:
         content = f"{str(e.__class__)}, {str(e)}, {reason}"
         pytest.skip(reason=content)
+
+
+def test_init():
+    """クライアントでの初期化テスト"""
+    client = hvac.Client("")
+
+    # 一般的な初期化
+    fs = VaultFileSystem(mount_point="secret", client=client)
+    assert fs.client == client
+    assert fs.mount_point == "secret"
+
+    # マウントポイントは必須
+    with pytest.raises(Exception):
+        fs = VaultFileSystem(client=client)
+
+    # client, url は一緒に指定できない
+    with pytest.raises(ValueError, match="provided"):
+        VaultFileSystem(
+            mount_point="secret", client=client, url="http://127.0.0.1:8200"
+        )
+
+
+def test_init_from_client():
+    client = hvac.Client("")
+    fs = VaultFileSystem.from_client(mount_point="secret", client=client)
+    assert fs.client == client
+    assert fs.mount_point == "secret"
+
+
+def test_init_from_url():
+    fs = VaultFileSystem.from_url(
+        mount_point="secret", url="http://127.0.0.1:8200", token=""
+    )
+    assert fs.client
+    assert fs.mount_point == "secret"
 
 
 def test_is_authenticated_false(vault_fs: VaultFileSystem):
@@ -102,20 +136,6 @@ def test_client(client: hvac.Client, params):
         path=path, mount_point=mount_point, versions=[1, 2, 3, 4, 5]
     )
     assert res.status_code == 204  # no content
-
-
-def test_init(client: hvac.Client, params):
-    """初期化のテスト"""
-    mount_point, path, secret = params
-
-    fs = VaultFileSystem.from_client(mount_point=mount_point, client=client)
-    assert fs.protocol == "vault"
-    assert fs.mount_point == mount_point
-
-    fs = VaultFileSystem.from_url(
-        mount_point=mount_point, url=client.url, token=client.token
-    )
-    assert fs.mount_point == mount_point
 
 
 def test_normalize_path(vault_fs: VaultFileSystem):
