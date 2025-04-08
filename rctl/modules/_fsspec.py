@@ -61,7 +61,7 @@ class FsspecFileOperator(FsspecRootOperator):
             if fs.isfile(p):
                 return True, ""
             else:
-                return False, f"Not File."
+                return False, "Not File."
         else:
             return False, f"Not Exists {str(p)}"
 
@@ -98,7 +98,7 @@ class FsspecDirOperator(FsspecRootOperator):
             if fs.isdir(p):
                 return True, ""
             else:
-                return False, f"Not directory."
+                return False, "Not directory."
         else:
             return False, f"Not Exists {str(p)}"
 
@@ -133,7 +133,7 @@ class FsspecBucketOperator(FsspecRootOperator):
             if fs.isdir(p):
                 return True, ""
             else:
-                return False, f"Not directory."
+                return False, "Not directory."
         else:
             return False, f"Not Exists {str(p)}"
 

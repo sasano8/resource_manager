@@ -15,11 +15,11 @@ def test_init():
     assert fs.mount_point == "secret"
 
     # マウントポイントは必須
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(Exception):
         fs = VaultFileSystem(client=client)
 
     # client, url は一緒に指定できない
-    with pytest.raises(ValueError, match="provided") as exc_info:
+    with pytest.raises(ValueError, match="provided"):
         VaultFileSystem(
             mount_point="secret", client=client, url="http://127.0.0.1:8200"
         )

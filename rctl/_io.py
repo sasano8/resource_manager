@@ -13,13 +13,13 @@ except Exception:
 
 def from_json(path: str):
     with open(path) as f:
-        data = yaml.safe_load(path)
+        data = yaml.safe_load(f)
     return data
 
 
 def from_yml(path: str):
     with open(path) as f:
-        data = yaml.safe_load(path)
+        data = yaml.safe_load(f)
     return data
 
 

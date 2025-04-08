@@ -17,14 +17,13 @@ class DockerComposeSericeManager:
         import os
         import subprocess
 
-        with open(os.devnull, "w") as devnull:
-            result = subprocess.run(
-                ["docker", "compose", "ps", self._service_name],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                text=True,
-            )
+        result = subprocess.run(
+            ["docker", "compose", "ps", self._service_name],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            text=True,
+        )
 
         if result.returncode:
             return False

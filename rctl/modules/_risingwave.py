@@ -46,7 +46,11 @@ def compile_create_subscription(name, _from, with_option):
 
 def compile_drop(type, name):
     """type: SYNC, SOURCE, SUBSCRIPTION, TABLE, VIEW, MATERIALIZED VIEW ... any"""
-    ddl = sql.SQL("DROP IF EXISTS {}".format(type, name))
+    ddl = sql.SQL(
+        "DROP IF EXISTS {}".format(
+            type,
+        )
+    )
     return ddl
 
 
@@ -201,7 +205,7 @@ class RisingwaveOperator(Operator):
             with conn.cursor() as cur:
                 try:
                     cur.execute(stmt, params)
-                except Exception as e:
+                except Exception:
                     # return False, f"{str(e)}\n{traceback.format_exc()}"
                     raise
                 return True, ""
@@ -211,12 +215,12 @@ class RisingwaveOperator(Operator):
             with conn.cursor() as cur:
                 try:
                     cur.execute(stmt, params)
-                except Exception as e:
+                except Exception:
                     # return False, f"{str(e)}\n{traceback.format_exc()}"
                     raise
                 try:
                     row = cur.fetchone()
-                except Exception as e:
+                except Exception:
                     raise
                     # return False, f"{str(e)}\n{traceback.format_exc()}"
 
@@ -232,13 +236,13 @@ class RisingwaveOperator(Operator):
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
                 try:
                     cur.execute(stmt, params)
-                except Exception as e:
+                except Exception:
                     raise
                     # return False, f"{str(e)}\n{traceback.format_exc()}"
 
                 try:
                     rows = cur.fetchall()
-                except Exception as e:
+                except Exception:
                     raise
                     # return False, f"{str(e)}\n{traceback.format_exc()}"
 

@@ -42,3 +42,20 @@ packages = { find = { include = ["rctl*"] } }
 [project.scripts]
 rctl = "rctl.__main__:main"
 
+
+[tool.ruff]
+line-length = 88          # blackと合わせる
+lint.select = [
+    "I",  # isort
+    "E",  # pycodestyle
+    "F",  # pyflakes
+    "YTT" # 3.9未満互換コードを3.9の推奨構文に合わせる
+]
+lint.ignore = [
+    "F401",  # unused import
+    "E501"   # line-length balck で自動修正される
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

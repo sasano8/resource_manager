@@ -27,7 +27,7 @@ class VaultWriteIO:
 
     def flush(self):
         self._buf.getvalue()
-        result = self._client.secrets.kv.v2.create_or_update_secret(**self._kwargs)
+        self._client.secrets.kv.v2.create_or_update_secret(**self._kwargs)
 
 
 class HashiCorpVaultStore(AbstractKVStore):

@@ -659,13 +659,3 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         else:  # mode in ['w', 'wb']
             # 書き込みモード
             return VaultWriteIO(self, path, mode)
-
-
-# パッケージの初期化処理
-def register_vault_filesystem():
-    """VaultFileSystemをfsspecに登録する"""
-    fsspec.register_implementation("vault", VaultFileSystem)
-
-
-# 自動的に登録
-register_vault_filesystem()

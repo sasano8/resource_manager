@@ -60,7 +60,7 @@ class Envirnoment:
                 try:
                     output = self.render(text)
                     print(f"Output: {output}")
-                except Exception as e:
+                except Exception:
                     print("An error occurred:")
                     traceback.print_exc()
 
