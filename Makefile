@@ -15,6 +15,8 @@ publish-docker:
 sync-dev:
 	@uv sync --all-groups
 
+install-precommit:
+	@uvx pre-commit@4.1.0 install
+
 format:
-	@uvx ruff@latest check . --fix
-	@uvx ruff@latest format # black 互換
+	@uvx pre-commit@4.1.0 run --all-files --verbose

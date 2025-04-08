@@ -10,8 +10,7 @@ def scan_files(
     include: Optional[List[str]] = None,
     exclude: Optional[List[str]] = None,
 ) -> Iterator[str]:
-    """
-    指定したディレクトリを再帰的にスキャンし、ファイルを指定の順序で返す。
+    """指定したディレクトリを再帰的にスキャンし、ファイルを指定の順序で返す。
 
     :param root_dir: スキャンするルートディレクトリ
     :param strategy: ファイルの順序戦略 ('bfs', 'dfs', 'name', 'mtime', 'bfs_name')

@@ -11,13 +11,10 @@ from ..exceptions import AppError
 
 
 class VaultWriteIO:
-    """
-    Vaultへの書き込み操作を扱うためのI/Oクラス
-    """
+    """Vaultへの書き込み操作を扱うためのI/Oクラス"""
 
     def __init__(self, fs, path: str, mode: str = "w"):
-        """
-        VaultWriteIOの初期化
+        """VaultWriteIOの初期化
 
         Parameters
         ----------
@@ -35,15 +32,14 @@ class VaultWriteIO:
         self.closed = False
 
     def write(self, data: Union[str, bytes]) -> int:
-        """
-        データをバッファに書き込む
+        """データをバッファに書き込む
 
         Parameters
         ----------
         data : Union[str, bytes]
             書き込むデータ
 
-        Returns
+        Returns:
         -------
         int
             書き込まれたバイト数
@@ -53,15 +49,14 @@ class VaultWriteIO:
         return self.buffer.write(data)
 
     def read(self, size: int = -1) -> Union[str, bytes]:
-        """
-        バッファからデータを読み込む
+        """バッファからデータを読み込む
 
         Parameters
         ----------
         size : int, optional
             読み込むサイズ, by default -1 (すべて読み込む)
 
-        Returns
+        Returns:
         -------
         Union[str, bytes]
             読み込まれたデータ
@@ -71,17 +66,13 @@ class VaultWriteIO:
         return self.buffer.read(size)
 
     def flush(self):
-        """
-        バッファをフラッシュする
-        """
+        """バッファをフラッシュする"""
         if self.closed:
             raise ValueError("I/O operation on closed file")
         self.buffer.flush()
 
     def close(self):
-        """
-        ファイルを閉じる。この時点でVaultにデータが書き込まれる
-        """
+        """ファイルを閉じる。この時点でVaultにデータが書き込まれる"""
         if self.closed:
             return
 
@@ -98,10 +89,9 @@ class VaultWriteIO:
         self.fs._write_secret(self.path, content)
 
     def __enter__(self):
-        """
-        コンテキストマネージャのエントリーポイント
+        """コンテキストマネージャのエントリーポイント
 
-        Returns
+        Returns:
         -------
         VaultWriteIO
             自身のインスタンス
@@ -109,8 +99,7 @@ class VaultWriteIO:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """
-        コンテキストマネージャのエグジットポイント
+        """コンテキストマネージャのエグジットポイント
 
         Parameters
         ----------
@@ -129,9 +118,7 @@ def exclude_none(data: dict):
 
 
 class VaultFileSystem(fsspec.AbstractFileSystem):
-    """
-    HashiCorp Vaultをファイルシステムとして扱うためのfsspec実装
-    """
+    """HashiCorp Vaultをファイルシステムとして扱うためのfsspec実装"""
 
     protocol = "vault"
 
@@ -154,8 +141,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         # fsspec の引数
         **kwargs,
     ):
-        """
-        VaultFileSystemの初期化
+        """VaultFileSystemの初期化
 
         Parameters
         ----------
@@ -226,8 +212,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
 
     @classmethod
     def from_client(cls, mount_point, client, **kwargs):
-        """
-        既存のVaultクライアントからVaultFileSystemを作成する
+        """既存のVaultクライアントからVaultFileSystemを作成する
 
         Parameters
         ----------
@@ -238,7 +223,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         **kwargs
             その他のパラメータ
 
-        Returns
+        Returns:
         -------
         VaultFileSystem
             作成されたVaultFileSystemインスタンス
@@ -261,8 +246,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         namespace=None,
         **kwargs,
     ):
-        """
-        URLとトークンからVaultFileSystemを作成する
+        """URLとトークンからVaultFileSystemを作成する
 
         Parameters
         ----------
@@ -291,7 +275,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         **kwargs
             その他のパラメータ
 
-        Returns
+        Returns:
         -------
         VaultFileSystem
             作成されたVaultFileSystemインスタンス
@@ -312,19 +296,16 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         )
 
     def _authenticate(self):
-        """
-        Vaultサーバーに接続する
-        """
+        """Vaultサーバーに接続する"""
         try:
             return self.client.is_authenticated()
         except Exception as e:
             raise AppError(f"Authentication failed: {self.client.url}") from e
 
     def is_authenticated(self) -> bool:
-        """
-        Vaultサーバーへの認証状態を確認する
+        """Vaultサーバーへの認証状態を確認する
 
-        Returns
+        Returns:
         -------
         bool
             認証されている場合はTrue、そうでない場合はFalse
@@ -353,20 +334,19 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
     #     return f"{key}"
 
     def _read_secret(self, path: str) -> Dict[str, Any]:
-        """
-        Vaultからシークレットを読み取る
+        """Vaultからシークレットを読み取る
 
         Parameters
         ----------
         path : str
             読み取るパス
 
-        Returns
+        Returns:
         -------
         Dict[str, Any]
             Vaultからの応答
 
-        Raises
+        Raises:
         ------
         FileNotFoundError
             パスが存在しない場合
@@ -379,8 +359,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             raise FileNotFoundError(f"Secret not found: {path}") from e
 
     def _write_secret(self, path: str, content: str) -> None:
-        """
-        Vaultにシークレットを書き込む
+        """Vaultにシークレットを書き込む
 
         Parameters
         ----------
@@ -419,8 +398,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             yield from items
 
     def ls(self, path: str, detail: bool = True, **kwargs) -> list[str] | list[dict]:
-        """
-        指定されたパスの内容をリストする
+        """指定されたパスの内容をリストする
 
         Parameters
         ----------
@@ -429,7 +407,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         detail : bool, optional
             詳細情報を返すかどうか, by default True
 
-        Returns
+        Returns:
         -------
         List[Union[str, Dict[str, Any]]]
             パスの内容
@@ -473,15 +451,14 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         return {"name": path.strip("/") + "/", "size": None, "type": "dir"}
 
     def info(self, path: str) -> Dict[str, Any]:
-        """
-        指定されたパスの情報を取得する
+        """指定されたパスの情報を取得する
 
         Parameters
         ----------
         path : str
             情報を取得するパス
 
-        Returns
+        Returns:
         -------
         Dict[str, Any]
             パスの情報
@@ -503,15 +480,14 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             raise FileNotFoundError(f"File not found: {path}") from e
 
     def exists(self, path: str) -> bool:
-        """
-        指定されたパスが存在するかどうかを確認する
+        """指定されたパスが存在するかどうかを確認する
 
         Parameters
         ----------
         path : str
             確認するパス
 
-        Returns
+        Returns:
         -------
         bool
             パスが存在するかどうか
@@ -582,8 +558,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
     #     self._write_secret(rpath, content)
 
     def rm(self, path: str, recursive: bool = False, **kwargs):
-        """
-        指定されたパスを削除する
+        """指定されたパスを削除する
 
         Parameters
         ----------
@@ -609,8 +584,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
     def open(
         self, path: str, mode: str = "rb", block_size: Optional[int] = None, **kwargs
     ) -> Union[BinaryIO, TextIO]:
-        """
-        指定されたパスを開く
+        """指定されたパスを開く
 
         Parameters
         ----------
@@ -624,17 +598,17 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         **kwargs : dict
             その他のパラメータ
 
-        Returns
+        Returns:
         -------
         Union[BinaryIO, TextIO]
             ファイルオブジェクト
 
-        Raises
+        Raises:
         ------
         ValueError
             サポートされていないモードが指定された場合
         """
-        normalized_path = self._normalize_path(path)
+        # normalized_path = self._normalize_path(path)
 
         # サポートされるモードを明示的に制限
         if mode not in ["r", "rb", "w", "wb"]:

@@ -6,7 +6,6 @@ from rctl2.filesystems import VaultFileSystem
 
 def test_init():
     """クライアントでの初期化テスト"""
-
     client = hvac.Client("")
 
     # 一般的な初期化

@@ -95,14 +95,12 @@ def compile_exists(target: str, target_name: str, schema_name="public"):
 
 def _compile_exists(type, name):
     # SQLの標準規格
-    """
-    SELECT EXISTS (
+    """SELECT EXISTS (
       SELECT 1 FROM information_schema.tables
       WHERE table_schema = 'public'
       AND table_name = 'your_table_name'
     )
     """
-
     # postgres 固有スキーマ(information_schema より細かい情報が見れるっぽい)
     """
     SELECT EXISTS (

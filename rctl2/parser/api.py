@@ -104,8 +104,7 @@ def flatten_groups(nodes):
 
 
 def make_dag(resolved_nodes, depends_on: bool = True, depends_on_system: bool = True):
-    """
-    ノードから depends_on, depends_on_system を抽出し dag を構築する。
+    """ノードから depends_on, depends_on_system を抽出し dag を構築する。
 
     抽出パターン１: タスク実行用のDAGを構築する
       depends_on=True
@@ -115,7 +114,6 @@ def make_dag(resolved_nodes, depends_on: bool = True, depends_on_system: bool = 
       depends_on=False
       depends_on_system=True
     """
-
     dag = networkx.DiGraph()
 
     for key, node in resolved_nodes.items():

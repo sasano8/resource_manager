@@ -1,6 +1,4 @@
-"""
-rctl2パッケージの初期化処理を行うモジュール
-"""
+"""rctl2パッケージの初期化処理を行うモジュール"""
 
 import logging
 from typing import List, Optional
@@ -10,8 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def initialize() -> None:
-    """
-    rctl2パッケージの初期化処理を実行する
+    """rctl2パッケージの初期化処理を実行する
 
     この関数は以下の処理を行います：
     1. ファイルシステムの登録
@@ -29,9 +26,7 @@ def initialize() -> None:
 
 
 def _register_filesystems() -> None:
-    """
-    fsspecにファイルシステム実装を登録する
-    """
+    """fsspecにファイルシステム実装を登録する"""
     import fsspec
 
     from .filesystems import VaultFileSystem

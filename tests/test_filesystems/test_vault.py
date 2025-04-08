@@ -153,7 +153,6 @@ def test_write_secret_json(vault_fs: VaultFileSystem, params):
 
 def test_ls_detail_false(vault_fs: VaultFileSystem, client: hvac.Client, mount_point):
     """ディレクトリリストのテスト"""
-
     # 空の状態を前提とする
     assert list(vault_fs.ls("", detail=False)) == []
 

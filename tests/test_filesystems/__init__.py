@@ -1,3 +1,1 @@
-"""
-VaultFileSystemのテストパッケージ
-"""
+"""VaultFileSystemのテストパッケージ"""

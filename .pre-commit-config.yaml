@@ -1,6 +1,16 @@
+# repos:
+#   - repo: https://github.com/psf/black
+#     rev: 25.1.0
+#     hooks:
+#       - id: black
+
 repos:
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.4
     hooks:
-      - id: black
-    
+      # Run the linter.
+      - id: ruff
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format
+      

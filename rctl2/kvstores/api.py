@@ -1,5 +1,4 @@
-"""
-env1:
+"""env1:
     store:
         type: env
     serializer:
