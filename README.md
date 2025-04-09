@@ -1,34 +1,60 @@
 # rctl
 
-接続情報、機密情報の管理や、リソースの状態管理が面倒だ。
-そういったものを管理できる仕組みを作る。
+## 開発に貢献する
 
-## init
-
-リソースを初期化する。すでに準備済みのリソースに対しては何もしない。
-
-## destroy
-
-リソースを削除。存在しない場合は無視します。
-
-## recreate
-
-destroy 実行後に、init を実行します。
-
-
-
-# 開発に貢献する
+仮想環境を構築します。
 
 ```
 make sync-dev
 ```
 
+プレコミットを構成します。
+
 ```
-pre-commit install
+make install-precommit
+```
+
+ライブラリをインストールします（VaultFileSystem が fsspec のエントリーポイントに登録されます）。
+
+```
+make install
+```
+
+コードをフォーマットします。
+
+```
+make format
+```
+
+## 入門 
+
+```
+import rctl2  # ValutFileSystem が登録される
+import fsspec
+
+fs = fsspec.filesystem("vault", mount_point="secret", url="http://127.0.0.1:8200", token="vaulttoken")
 ```
 
 
-# CLI
+## 概念
+
+接続情報、機密情報の管理や、リソースの状態管理が面倒だ。
+そういったものを管理できる仕組みを作る。
+
+### init
+
+リソースを初期化する。すでに準備済みのリソースに対しては何もしない。
+
+### destroy
+
+リソースを削除。存在しない場合は無視します。
+
+### recreate
+
+destroy 実行後に、init を実行します。
+
+
+## CLI
 
 ```
 uv tool run rctl
@@ -45,4 +71,12 @@ rctl resource apply -f resources/
 
 ```
 printf "mysecretdata" | docker secret create my_secret -
+
 ```
+import rctl2  # ValutFileSystem が登録される
+import fsspec
+
+fs = fsspec.filesystem("vault", mount_point="secret", url="http://127.0.0.1:8200", token="vaulttoken")
+```
+
+

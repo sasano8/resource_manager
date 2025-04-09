@@ -4,6 +4,7 @@ version = "0.1.9"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
+
 dependencies = [
     "pyyaml>=6.0.2",
     "fsspec>=2025.2.0",
@@ -32,12 +33,21 @@ vault = [
     "hvac>=2.3.0", # vault
 ]
 
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project.entry-points."fsspec.specs"]
+vault = "rctl2.VaultFileSystem"
+
+[tool.setuptools_scm]
 
 [tool.setuptools]
-packages = { find = { include = ["rctl*"] } }
+packages = { find = { include = ["rctl2*"] } }
 
-[project.scripts]
-rctl = "rctl.__main__:main"
+# [project.scripts]
+# rctl = "rctl.__main__:main"
+
 
 
 [tool.ruff]

@@ -18,5 +18,12 @@ sync-dev:
 install-precommit:
 	@uvx pre-commit@4.1.0 install
 
+# fsspec に vault filesystemが登録される
+install:
+	@uv pip install .
+
 format:
 	@uvx pre-commit@4.1.0 run --all-files --verbose
+
+test:
+	@uv run pytest -svx tests/test_filesystems
