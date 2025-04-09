@@ -51,12 +51,14 @@ packages = { find = { include = ["rctl2*"] } }
 
 
 [tool.ruff]
+target-version = "py312"
 line-length = 88          # blackと合わせる
 lint.select = [
-    "I",   # isort
-    "E",   # pycodestyle
-    "F",   # pyflakes
-    "YTT", # 3.9未満互換コードを3.9の推奨構文に合わせる
+    "I",     # isort
+    "E",     # pycodestyle
+    "F",     # pyflakes
+    "YTT",   # 3.9未満互換コードを3.9の推奨構文に合わせる
+    "UP007"  # X | Y style annotation
 ]
 lint.ignore = [
     "F401",  # unused import

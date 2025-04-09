@@ -26,10 +26,15 @@ make install
 make format
 ```
 
+テストを実行します。
+
+```
+make test
+```
+
 ## 入門 
 
 ```
-import rctl2  # ValutFileSystem が登録される
 import fsspec
 
 fs = fsspec.filesystem("vault", mount_point="secret", url="http://127.0.0.1:8200", token="vaulttoken")
@@ -71,12 +76,9 @@ rctl resource apply -f resources/
 
 ```
 printf "mysecretdata" | docker secret create my_secret -
-
 ```
-import rctl2  # ValutFileSystem が登録される
-import fsspec
 
-fs = fsspec.filesystem("vault", mount_point="secret", url="http://127.0.0.1:8200", token="vaulttoken")
+
 ```
 
 

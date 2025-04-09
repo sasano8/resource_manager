@@ -7,8 +7,8 @@ from typing import Iterator, List, Optional, Tuple
 def scan_files(
     root_dir: str,
     strategy: str = "bfs_name",
-    include: Optional[List[str]] = None,
-    exclude: Optional[List[str]] = None,
+    include: List[str] | None = None,
+    exclude: List[str] | None = None,
 ) -> Iterator[str]:
     """指定したディレクトリを再帰的にスキャンし、ファイルを指定の順序で返す。
 
@@ -35,7 +35,7 @@ def scan_files(
 
 
 def should_include(
-    file_path: str, include: Optional[List[str]], exclude: Optional[List[str]]
+    file_path: str, include: List[str] | None, exclude: List[str] | None
 ) -> bool:
     """ファイルが含まれるべきかどうかをワイルドカードで判定"""
     if exclude and any(fnmatch.fnmatch(file_path, ex) for ex in exclude):
@@ -46,7 +46,7 @@ def should_include(
 
 
 def bfs_scan(
-    root_dir: str, include: Optional[List[str]], exclude: Optional[List[str]]
+    root_dir: str, include: List[str] | None, exclude: List[str] | None
 ) -> Iterator[str]:
     """幅優先探索でファイルをスキャン"""
     queue = [root_dir]
@@ -68,7 +68,7 @@ def bfs_scan(
 
 
 def dfs_scan(
-    root_dir: str, include: Optional[List[str]], exclude: Optional[List[str]]
+    root_dir: str, include: List[str] | None, exclude: List[str] | None
 ) -> Iterator[str]:
     """深さ優先探索でファイルをスキャン"""
     stack = [root_dir]
@@ -83,7 +83,7 @@ def dfs_scan(
 
 
 def sorted_scan(
-    root_dir: str, include: Optional[List[str]], exclude: Optional[List[str]]
+    root_dir: str, include: List[str] | None, exclude: List[str] | None
 ) -> Iterator[str]:
     """名前順にソートしてファイルをスキャン"""
     files = []
@@ -96,7 +96,7 @@ def sorted_scan(
 
 
 def mtime_scan(
-    root_dir: str, include: Optional[List[str]], exclude: Optional[List[str]]
+    root_dir: str, include: List[str] | None, exclude: List[str] | None
 ) -> Iterator[str]:
     """更新時刻順にソートしてファイルをスキャン"""
     files: List[Tuple[float, str]] = []
@@ -113,7 +113,7 @@ def mtime_scan(
 
 
 def bfs_sorted_scan(
-    root_dir: str, include: Optional[List[str]], exclude: Optional[List[str]]
+    root_dir: str, include: List[str] | None, exclude: List[str] | None
 ) -> Iterator[str]:
     """幅優先探索 + アルファベット順でスキャン"""
     queue = [root_dir]

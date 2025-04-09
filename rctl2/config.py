@@ -10,7 +10,7 @@ class Pipe(BaseModel):
 
 class StoreConfig(BaseModel):
     opener: Pipe
-    handler: Optional[Pipe] = None
+    handler: Pipe | None = None
 
 
 class Env(BaseModel):

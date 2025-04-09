@@ -55,7 +55,7 @@ class HashiCorpVaultStore(AbstractKVStore):
         # Vault ではパスで区切るのでスラッシュを安全に扱う
         return key.strip("/")
 
-    def get(self, key: str, version: Optional[int] = None) -> Optional[str]:
+    def get(self, key: str, version: int | None = None) -> str | None:
         try:
             params = {"version": version} if version else {}
             response = self.client.secrets.kv.v2.read_secret_version(
@@ -68,7 +68,7 @@ class HashiCorpVaultStore(AbstractKVStore):
         except hvac.exceptions.InvalidPath:
             return None
 
-    def set(self, key: str, value: str, ttl: Optional[int] = None):
+    def set(self, key: str, value: str, ttl: int | None = None):
         # TTL は Vault 側では metadata やポリシーで管理（ここでは記録しない）
         self.client.secrets.kv.v2.create_or_update_secret(
             path=self._wrap(key), secret={"value": value}, mount_point=self.mount_point

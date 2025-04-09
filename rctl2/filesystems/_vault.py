@@ -1,6 +1,6 @@
 import json
 from io import BytesIO, StringIO
-from typing import Any, BinaryIO, Dict, Optional, TextIO, Union
+from typing import Any, BinaryIO, Dict, TextIO
 
 import fsspec
 import hvac
@@ -30,7 +30,7 @@ class VaultWriteIO:
         self.buffer = BytesIO() if mode == "rb" else StringIO()
         self.closed = False
 
-    def write(self, data: Union[str, bytes]) -> int:
+    def write(self, data: str | bytes) -> int:
         """データをバッファに書き込む
 
         Parameters
@@ -47,7 +47,7 @@ class VaultWriteIO:
             raise ValueError("I/O operation on closed file")
         return self.buffer.write(data)
 
-    def read(self, size: int = -1) -> Union[str, bytes]:
+    def read(self, size: int = -1) -> str | bytes:
         """バッファからデータを読み込む
 
         Parameters
@@ -581,8 +581,8 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             raise FileNotFoundError(f"File not found: {path}") from e
 
     def open(
-        self, path: str, mode: str = "rb", block_size: Optional[int] = None, **kwargs
-    ) -> Union[BinaryIO, TextIO]:
+        self, path: str, mode: str = "rb", block_size: int | None = None, **kwargs
+    ) -> BinaryIO | TextIO:
         """指定されたパスを開く
 
         Parameters
