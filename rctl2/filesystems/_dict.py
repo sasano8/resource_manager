@@ -3,6 +3,22 @@ from io import BytesIO, StringIO
 import fsspec
 
 
+def extract_erros(items, parent_key: str = ""):
+    messages = {}
+
+    for k, v in items:
+        key = parent_key + "/" + k if parent_key else k
+        if isinstance(v, dict):
+            yield from extract_erros(v.items(), key)
+        else:
+            if not isinstance(v, (str, bytes)):
+                messages.setdefault(key, []).append(
+                    "The value must be either str or bytes."
+                )
+
+    yield from messages.items()
+
+
 class DictFileSystem(fsspec.AbstractFileSystem):
     protocol = None  # 登録しない
 
@@ -11,6 +27,10 @@ class DictFileSystem(fsspec.AbstractFileSystem):
             self._data: dict = dict(data)
         else:
             self._data: dict = data
+
+        errors = dict(extract_erros(self._data.items()))
+        if errors:
+            raise ValueError(errors)
 
     def info(self, path):
         if path not in self._data:
@@ -37,18 +57,28 @@ class DictFileSystem(fsspec.AbstractFileSystem):
             return self.ls(path, detail=detail)
 
     def open(
-        self, path: str, mode: str = "rb", block_size: int | None = None, **kwargs
+        self,
+        path: str,
+        mode: str = "rb",
+        block_size: int | None = None,
+        encoding: str = "utf-8",
+        **kwargs,
     ):
+        if path not in self._data:
+            raise FileNotFoundError(path)
+
+        data = self._data[path]
+
         if mode == "r":
-            if path in self._data:
-                return StringIO(self._data[path])
-            else:
-                raise FileNotFoundError(path)
+            if not isinstance(data, str):
+                data = data.decode(encoding)
+            return StringIO(data)
+
         elif mode == "rb":
-            if path in self._data:
-                return BytesIO(self._data[path].encode("UTF8"))
-            else:
-                raise FileNotFoundError(path)
+            if not isinstance(data, bytes):
+                data = data.encode(encoding)
+            return BytesIO(data)
+
         else:
             raise ValueError(
                 f"Unsupported mode: {mode}. Supported modes are 'r', 'rb', 'w', 'wb'"

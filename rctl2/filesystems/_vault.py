@@ -563,14 +563,13 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
             # 読み取りモード
             try:
                 response = self._read_secret(path)
+                dumped = json.dumps(response["data"]["data"])
 
                 # Vaultの応答をそのまま返す
                 if mode == "rb":
-                    # バイナリモード
-                    return BytesIO(json.dumps(response["data"]["data"]).encode())
+                    return BytesIO(dumped.encode())
                 else:
-                    # テキストモード
-                    return StringIO(json.dumps(response["data"]["data"]))
+                    return StringIO(dumped)
             except Exception as e:
                 raise FileNotFoundError(f"File not found: {path}") from e
         else:  # mode in ['w', 'wb']
