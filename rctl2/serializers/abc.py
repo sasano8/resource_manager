@@ -2,11 +2,11 @@ class AbstractSerializer:
     extensions: set = set([])
 
     @classmethod
-    def load(cls, *args, **kwargs):
+    def load(cls, f, *args, **kwargs):
         raise NotImplementedError()
 
     @classmethod
-    def dump(cls, *args, **kwargs):
+    def dump(cls, data, f, *args, **kwargs):
         raise NotImplementedError()
 
     def match(self, extension):

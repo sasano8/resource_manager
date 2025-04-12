@@ -40,6 +40,54 @@ class YamlSerializer(AbstractSerializer):
 class TomlSerializer(AbstractSerializer): ...
 
 
+class StrSerializer(AbstractSerializer):
+    extensions = {"text"}
+
+    def load(self, f):
+        _data = f.read()
+        if isinstance(_data, bytes):
+            _data = _data.decode("utf-8")
+
+        if not isinstance(_data, str):
+            raise ValueError()
+
+        return _data
+
+    def dump(self, data, f):
+        _data = data
+        if isinstance(data, bytes):
+            _data = data.decode("utf-8")
+
+        if not isinstance(_data, str):
+            raise ValueError()
+
+        f.write(_data)
+
+
+class BytesSerializer(AbstractSerializer):
+    extensions = {"bin"}
+
+    def load(self, f):
+        _data = f.read()
+        if isinstance(_data, str):
+            _data = _data.encode("utf-8")
+
+        if not isinstance(_data, bytes):
+            raise ValueError()
+
+        return _data
+
+    def dump(self, data, f):
+        _data = data
+        if isinstance(data, str):
+            _data = data.encode("utf-8")
+
+        if not isinstance(_data, bytes):
+            raise ValueError()
+
+        f.write(_data)
+
+
 class NullSerializer(AbstractSerializer):
     extensions = {"*"}
 

@@ -7,6 +7,7 @@ import hvac
 from hvac.exceptions import InvalidPath
 
 from ..exceptions import AppError
+from .utils import normalize_path
 
 
 class VaultWriteIO:
@@ -316,11 +317,7 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
 
     def _normalize_path(self, path):
         """パスを正規化する"""
-        # 先頭と末尾のスラッシュを削除
-        path = path.strip("/")
-        # 連続したスラッシュを単一のスラッシュに置き換え
-        path = "/".join(filter(None, path.split("/")))
-        return path
+        return normalize_path(path)
 
     # 参照がないので削除
     # def _path_to_key(self, path: str) -> str:
