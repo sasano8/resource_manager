@@ -19,7 +19,7 @@ def extract_erros(items, parent_key: str = ""):
     yield from messages.items()
 
 
-class DictFileSystem(fsspec.AbstractFileSystem):
+class TextDictFileSystem(fsspec.AbstractFileSystem):
     protocol = None  # 登録しない
 
     def __init__(self, data: dict, cache: bool = True):

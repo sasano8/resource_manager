@@ -1,9 +1,9 @@
 from os import environ
 
-from ._dict import DictFileSystem
+from ._dict import TextDictFileSystem
 
 
-class EnvFileSystem(DictFileSystem):
+class EnvFileSystem(TextDictFileSystem):
     protocol = "env"
 
     def __init__(self, source: dict = None, cache: bool = True):
