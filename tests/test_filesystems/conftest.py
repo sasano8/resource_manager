@@ -2,55 +2,15 @@ import hvac
 import pytest
 
 from rctl2.filesystems import VaultFileSystem
+from rctl2.resources.dockercompose import DockerComposeSericeManager
 
 RCTL2TEST_VALUT_URL = "http://127.0.0.1:8200"
 RCTL2TEST_VALUT_TOKEN = "vaulttoken"
 RCTL2TEST_VALUT_MOUNTPOINT = "secret"
+RCTL2TEST_VALUT_DOCKER = "vault"  # dockercompose.yml 内の Vaultのサービス名
 COUNTER = 0
 
-
-class DockerComposeSericeManager:
-    def __init__(self, service_name):
-        self._service_name = service_name
-
-    def exists(self):
-        import os
-        import subprocess
-
-        result = subprocess.run(
-            ["docker", "compose", "ps", self._service_name],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            check=False,
-            text=True,
-        )
-
-        if result.returncode:
-            return False
-
-        # docker compose にサービスが定義されていると、常に returncode == 0 が返る
-        # Up されているか確認する
-        for line in result.stdout.splitlines():
-            if self._service_name in line and "Up" in line:
-                return True
-
-        return False
-
-    def up(self, sleep: int = 1):
-        if not self.exists():
-            import subprocess
-            import time
-
-            subprocess.run(["docker", "compose", "up", "-d", self._service_name])
-            time.sleep(sleep)
-
-    def down(self):
-        import subprocess
-
-        subprocess.run(["docker", "compose", "down", self._service_name])
-
-
-VaultInstanceManager = DockerComposeSericeManager("vault")
+VaultInstanceManager = DockerComposeSericeManager(service_name=RCTL2TEST_VALUT_DOCKER)
 
 
 def _vault_client():

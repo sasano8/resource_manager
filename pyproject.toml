@@ -39,6 +39,7 @@ build-backend = "setuptools.build_meta"
 
 [project.entry-points."fsspec.specs"]
 vault = "rctl2.VaultFileSystem"
+env = "rctl2.EnvFileSystem"
 array = "rctl2.ArrayFileSystem"
 
 [tool.setuptools_scm]
