@@ -27,3 +27,6 @@ format:
 
 test:
 	@uv run pytest -svx tests/test_filesystems
+
+show-ui:
+	@uv run ui.py

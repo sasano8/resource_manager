@@ -500,62 +500,6 @@ class VaultFileSystem(fsspec.AbstractFileSystem):
         except Exception:
             return False
 
-    # def cat(self, path: str) -> Union[str, bytes]:
-    #     """
-    #     指定されたパスの内容を取得する
-
-    #     Parameters
-    #     ----------
-    #     path : str
-    #         内容を取得するパス
-
-    #     Returns
-    #     -------
-    #     Union[str, bytes]
-    #         パスの内容
-    #     """
-    #     response = self._read_secret(path)
-    #     return response["data"]["data"]["value"]
-
-    # def get(self, rpath: str, lpath: str, **kwargs):
-    #     """
-    #     リモートパスからローカルパスにファイルをダウンロードする
-
-    #     Parameters
-    #     ----------
-    #     rpath : str
-    #         リモートパス
-    #     lpath : str
-    #         ローカルパス
-    #     **kwargs : dict
-    #         その他のパラメータ
-    #     """
-    #     content = self.cat(rpath)
-    #     with open(lpath, "wb" if isinstance(content, bytes) else "w") as f:
-    #         f.write(content)
-
-    # def put(self, lpath: str, rpath: str, **kwargs):
-    #     """
-    #     ローカルパスからリモートパスにファイルをアップロードする
-
-    #     Parameters
-    #     ----------
-    #     lpath : str
-    #         ローカルパス
-    #     rpath : str
-    #         リモートパス
-    #     **kwargs : dict
-    #         その他のパラメータ
-    #     """
-    #     with open(lpath, "rb" if kwargs.get("binary", False) else "r") as f:
-    #         content = f.read()
-
-    #     # バイナリモードの場合はデコード
-    #     if kwargs.get("binary", False):
-    #         content = content.decode()
-
-    #     self._write_secret(rpath, content)
-
     def rm(self, path: str, recursive: bool = False, **kwargs):
         """指定されたパスを削除する
 
