@@ -121,3 +121,17 @@ def test_get_store_vault(vault_fs: filesystems.VaultFileSystem):
         root="group1",
     )
     assert store == {"secret1": {"b": 2}}
+
+
+def test_get_store_from_dict():
+    data = {
+        "protocol": "local",
+        "storage_options": {},
+        "loader": {"*": {"type": "json", "params": {}}},
+        "root": "tests/data/json_store",
+    }
+    store = filesystems.get_store_from_dict(**data)
+    assert store == {
+        "a.json": {"b": "1", "c": {"d": "2"}},
+        "b/c.json": {"e": "3", "f": {"g": "4"}},
+    }

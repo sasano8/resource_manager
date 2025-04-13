@@ -16,15 +16,6 @@ registry = MultiSerializer._make_registry(
 )
 
 
-def get_serializer(index: str, type: str, params: dict):
-    serialize_cls = registry.get(type, None)
-    if not serialize_cls:
-        raise NotImplementedError(type)
-
-    serializer = serialize_cls(**params)
-    return index, serializer
-
-
 def get_store(protocol, storage_options, root: str, loader):
     fs: fsspec.AbstractFileSystem = fsspec.filesystem(protocol, **storage_options)
     store = fs.get_mapper(root)
@@ -34,6 +25,24 @@ def get_store(protocol, storage_options, root: str, loader):
         data[k] = loader(v, ext)
 
     return data
+
+
+def get_store_from_dict(protocol, storage_options, root: str, loader: dict):
+    index = {}
+    for k, v in loader.items():
+        type = v["type"]
+        params = v.get("params", {})
+        serialize_cls = registry.get(type, None)
+        if not serialize_cls:
+            raise NotImplementedError(type)
+
+        serializer = serialize_cls(**params)
+        index[k] = serializer
+
+    serializer = MultiSerializer(index)
+    return get_store(
+        protocol, storage_options=storage_options, root=root, loader=serializer.loads
+    )
 
 
 def extract_ext(path: str):
