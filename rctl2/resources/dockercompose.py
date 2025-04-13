@@ -1,7 +1,7 @@
 import subprocess
 
 
-class DockerComposeSericeManager:
+class DockerComposeServiceManager:
     @classmethod
     def create(cls, service_name):
         return cls(service_name=service_name)

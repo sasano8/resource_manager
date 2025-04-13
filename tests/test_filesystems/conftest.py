@@ -2,7 +2,7 @@ import hvac
 import pytest
 
 from rctl2.filesystems import VaultFileSystem
-from rctl2.resources.dockercompose import DockerComposeSericeManager
+from rctl2.resources.dockercompose import DockerComposeServiceManager
 
 RCTL2TEST_VALUT_URL = "http://127.0.0.1:8200"
 RCTL2TEST_VALUT_TOKEN = "vaulttoken"
@@ -10,7 +10,7 @@ RCTL2TEST_VALUT_MOUNTPOINT = "secret"
 RCTL2TEST_VALUT_DOCKER = "vault"  # dockercompose.yml 内の Vaultのサービス名
 COUNTER = 0
 
-VaultInstanceManager = DockerComposeSericeManager(service_name=RCTL2TEST_VALUT_DOCKER)
+VaultInstanceManager = DockerComposeServiceManager(service_name=RCTL2TEST_VALUT_DOCKER)
 
 
 def _vault_client():

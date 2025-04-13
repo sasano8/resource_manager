@@ -1,3 +1,4 @@
+import json
 from io import BytesIO, StringIO
 
 import fsspec
@@ -70,14 +71,21 @@ class TextDictFileSystem(fsspec.AbstractFileSystem):
         data = self._data[path]
 
         if mode == "r":
-            if not isinstance(data, str):
+            if isinstance(data, bytes):
                 data = data.decode(encoding)
-            return StringIO(data)
+
+            f = StringIO()
+            json.dump(data, f)
+            f.seek(0)
+            return f
 
         elif mode == "rb":
-            if not isinstance(data, bytes):
-                data = data.encode(encoding)
-            return BytesIO(data)
+            if isinstance(data, bytes):
+                data = data.decode(encoding)
+
+            f = BytesIO(json.dumps(data).encode(encoding))
+            f.seek(0)
+            return f
 
         else:
             raise ValueError(

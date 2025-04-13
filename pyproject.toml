@@ -63,8 +63,9 @@ lint.select = [
     "UP007"  # X | Y style annotation
 ]
 lint.ignore = [
-    "F401",  # unused import
-    "E501"   # line-length balck で自動修正される
+    "F401",   # unused import
+    "E501",   # line-length balck で自動修正される
+    "F841",   # unused variable
 ]
 
 [tool.ruff.lint.pydocstyle]

@@ -1,3 +1,4 @@
+import json
 from os import environ
 
 import pytest
@@ -56,9 +57,16 @@ def test_find_detail_true(cache):
 
 @pytest.mark.parametrize("cache", [True, False])
 def test_open(cache):
+    """JSON文字列が返ることを確認する"""
+
     fs = EnvFileSystem(cache=cache)
     with fs.open("HOME", mode="r") as f:
-        assert f.read() == environ["HOME"]
+        expect = f.read()
+        assert expect == json.dumps(environ["HOME"])
+        assert json.loads(expect) == environ["HOME"]
 
     with fs.open("HOME", mode="rb") as f:
-        assert f.read() == environ["HOME"].encode("UTF8")
+        expect = f.read()
+        assert expect == json.dumps(environ["HOME"]).encode("UTF8")
+        assert expect.decode("UTF8") == json.dumps(environ["HOME"])
+        assert json.loads(expect) == environ["HOME"]
