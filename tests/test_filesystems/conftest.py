@@ -8,6 +8,8 @@ RCTL2TEST_VALUT_URL = "http://127.0.0.1:8200"
 RCTL2TEST_VALUT_TOKEN = "vaulttoken"
 RCTL2TEST_VALUT_MOUNTPOINT = "secret"
 RCTL2TEST_VALUT_DOCKER = "vault"  # dockercompose.yml 内の Vaultのサービス名
+RCTL2TEST_DATA_DIR = "tests/data/"
+
 COUNTER = 0
 
 VaultInstanceManager = DockerComposeServiceManager(service_name=RCTL2TEST_VALUT_DOCKER)

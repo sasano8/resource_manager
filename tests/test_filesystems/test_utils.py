@@ -4,6 +4,7 @@ import os
 from rctl2 import filesystems
 
 from .conftest import (
+    RCTL2TEST_DATA_DIR,
     RCTL2TEST_VALUT_MOUNTPOINT,
     RCTL2TEST_VALUT_TOKEN,
     RCTL2TEST_VALUT_URL,
@@ -50,7 +51,10 @@ def test_normalize_path():
 # @pytest.mark.xfail(reason="未実装")
 def test_get_store_local():
     store = filesystems.get_store(
-        "local", storage_options={}, root="tests/data/json_store", loader=loads_json
+        "local",
+        storage_options={},
+        root=RCTL2TEST_DATA_DIR + "json_store",
+        loader=loads_json,
     )
 
     assert store == {
@@ -59,7 +63,10 @@ def test_get_store_local():
     }
 
     store = filesystems.get_store(
-        "local", storage_options={}, root="tests/data/json_store/b", loader=loads_json
+        "local",
+        storage_options={},
+        root=RCTL2TEST_DATA_DIR + "json_store/b",
+        loader=loads_json,
     )
 
     assert store == {
@@ -128,7 +135,7 @@ def test_get_store_from_dict():
         "protocol": "local",
         "storage_options": {},
         "loader": {"*": {"type": "json", "params": {}}},
-        "root": "tests/data/json_store",
+        "root": RCTL2TEST_DATA_DIR + "json_store",
     }
     store = filesystems.get_store_from_dict(**data)
     assert store == {
@@ -143,13 +150,13 @@ def test_get_stores_from_dict():
             "protocol": "local",
             "storage_options": {},
             "loader": {"*": {"type": "json", "params": {}}},
-            "root": "tests/data/json_store",
+            "root": RCTL2TEST_DATA_DIR + "json_store",
         },
         "store2": {
             "protocol": "local",
             "storage_options": {},
             "loader": {"*": {"type": "json", "params": {}}},
-            "root": "tests/data/json_store",
+            "root": RCTL2TEST_DATA_DIR + "json_store",
         },
     }
 
