@@ -1,3 +1,4 @@
+import os
 import re
 
 import fsspec
@@ -8,9 +9,16 @@ def get_store(protocol, storage_options, root: str, loader):
     store = fs.get_mapper(root)
     data = dict(store)
     for k, v in data.items():
-        data[k] = loader(v)
+        ext = extract_ext(k)
+        data[k] = loader(v, ext)
 
     return data
+
+
+def extract_ext(path: str):
+    _, ext = os.path.splitext(path)
+    ext = ext.lstrip(".")
+    return ext
 
 
 def normalize_path(path: str):

@@ -10,7 +10,25 @@ from .conftest import (
 )
 
 
-def test_normalize():
+def loads_json(s, extension=""):
+    return json.loads(s)
+
+
+def test_extract_ext():
+    from rctl2.filesystems.utils import extract_ext
+
+    assert extract_ext("file.json") == "json"
+    assert extract_ext("file.old.json") == "json"
+    assert extract_ext("a/file.old.json") == "json"
+    assert extract_ext("text") == ""
+    assert extract_ext("a/text") == ""
+    assert extract_ext("text.") == ""
+    assert extract_ext("a/text.") == ""
+    assert extract_ext(".txt") == ""
+    assert extract_ext("a/.txt") == ""
+
+
+def test_normalize_path():
     from rctl2.filesystems.utils import normalize_path
 
     assert normalize_path("a") == "a"
@@ -32,7 +50,7 @@ def test_normalize():
 # @pytest.mark.xfail(reason="未実装")
 def test_get_store_local():
     store = filesystems.get_store(
-        "local", storage_options={}, root="tests/data/json_store", loader=json.loads
+        "local", storage_options={}, root="tests/data/json_store", loader=loads_json
     )
 
     assert store == {
@@ -41,7 +59,7 @@ def test_get_store_local():
     }
 
     store = filesystems.get_store(
-        "local", storage_options={}, root="tests/data/json_store/b", loader=json.loads
+        "local", storage_options={}, root="tests/data/json_store/b", loader=loads_json
     )
 
     assert store == {
@@ -50,13 +68,13 @@ def test_get_store_local():
 
 
 def test_get_store_env():
-    store = filesystems.get_store("env", storage_options={}, root="", loader=json.loads)
+    store = filesystems.get_store("env", storage_options={}, root="", loader=loads_json)
     assert "RCTL_TEST_ENV1" not in store
     assert "RCTL_TEST_ENV2" not in store
 
     os.environ["RCTL_TEST_ENV1"] = "1"
 
-    store = filesystems.get_store("env", storage_options={}, root="", loader=json.loads)
+    store = filesystems.get_store("env", storage_options={}, root="", loader=loads_json)
 
     assert "RCTL_TEST_ENV1" in store
     assert "RCTL_TEST_ENV2" not in store
@@ -64,7 +82,7 @@ def test_get_store_env():
 
     os.environ["RCTL_TEST_ENV2"] = "2"
 
-    store = filesystems.get_store("env", storage_options={}, root="", loader=json.loads)
+    store = filesystems.get_store("env", storage_options={}, root="", loader=loads_json)
 
     assert "RCTL_TEST_ENV1" in store
     assert "RCTL_TEST_ENV2" in store
@@ -90,7 +108,7 @@ def test_get_store_vault(vault_fs: filesystems.VaultFileSystem):
         "vault",
         storage_options=storage_options,
         root="",
-        loader=json.loads,
+        loader=loads_json,
     )
 
     assert set(vault_fs.find("", detail=False)) == set(["mysecret1", "group1/secret1"])
@@ -99,7 +117,7 @@ def test_get_store_vault(vault_fs: filesystems.VaultFileSystem):
     store = filesystems.get_store(
         "vault",
         storage_options=storage_options,
-        loader=json.loads,
+        loader=loads_json,
         root="group1",
     )
     assert store == {"secret1": {"b": 2}}

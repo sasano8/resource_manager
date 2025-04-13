@@ -31,7 +31,7 @@ class TextDictFileSystem(fsspec.AbstractFileSystem):
             raise ValueError(errors)
 
         # skip_instance_cache = True は、filesystem インスタンスを取得する時にオブジェクトをキャッシュする
-        # 無効でよい
+        # 基本的に無効でよい
         super().__init__(skip_instance_cache=skip_instance_cache)
 
     def info(self, path):

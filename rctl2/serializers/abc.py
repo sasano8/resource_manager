@@ -4,15 +4,11 @@ from typing import TYPE_CHECKING
 class AbstractSerializer:
     extensions: set = set([])
 
-    if TYPE_CHECKING:
+    def loads(self, s, extension="", *args, **kwargs):
+        raise NotImplementedError()
 
-        @classmethod
-        def load(cls, f, *args, **kwargs):
-            raise NotImplementedError()
-
-        @classmethod
-        def dump(cls, data, f, *args, **kwargs):
-            raise NotImplementedError()
+    def dumps(self, s, extension="", *args, **kwargs):
+        raise NotImplementedError()
 
     def match(self, extension):
         if extension in self.extensions:
