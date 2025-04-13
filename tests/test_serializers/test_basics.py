@@ -104,7 +104,8 @@ def test_multi_serializer():
         "null": null,
     }
 
-    sl = MultiSerializer.from_serializers(null, json, yaml)
+    index = MultiSerializer._make_index(null, json, yaml)
+    sl = MultiSerializer(index)
 
     # 指定した形式でロードできること
     assert sl.loads('"a"', extension="null") == '"a"'
@@ -123,3 +124,14 @@ def test_multi_serializer():
 
     with pytest.raises(NotImplementedError):
         sl.loads("a", extension="")
+
+    # ワイルドカードのテスト
+    sl = MultiSerializer({"*": NullSerializer(), "json": JsonSerializer()})
+
+    assert sl.loads('"a"', extension="json") == "a"
+    assert sl.dumps("a", extension="json") == '"a"'
+
+    # マッチしない拡張子はワイルドカードに一致する
+    # NullSerializer なのでそのまま値が返る
+    assert sl.loads('"a"', extension="") == '"a"'
+    assert sl.dumps("a", extension="") == "a"

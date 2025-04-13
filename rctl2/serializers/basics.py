@@ -1,5 +1,6 @@
 import json
 import tomllib
+from typing import Type
 
 import yaml
 
@@ -13,7 +14,19 @@ class MultiSerializer(AbstractSerializer):
         self._index: dict[str, AbstractSerializer] = serializers
 
     @classmethod
+    def _make_registry(
+        cls, *serializers: Type[AbstractSerializer]
+    ) -> dict[str, Type[AbstractSerializer]]:
+        """シリアライザークラスに登録されている拡張子からレジストリーを作成する"""
+        index = {}
+        for serializer in reversed(serializers):
+            for ext in serializer.extensions:
+                index[ext] = serializer
+        return index
+
+    @classmethod
     def _make_index(cls, *serializers: AbstractSerializer):
+        """シリアライザークラスに登録されている拡張子からインデックスを作成する"""
         index = {}
         for serializer in reversed(serializers):
             for ext in serializer.extensions:

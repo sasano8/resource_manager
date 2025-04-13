@@ -3,6 +3,27 @@ import re
 
 import fsspec
 
+from ..serializers import (
+    JsonSerializer,
+    MultiSerializer,
+    NullSerializer,
+    TomlSerializer,
+    YamlSerializer,
+)
+
+registry = MultiSerializer._make_registry(
+    JsonSerializer, NullSerializer, TomlSerializer, YamlSerializer
+)
+
+
+def get_serializer(index: str, type: str, params: dict):
+    serialize_cls = registry.get(type, None)
+    if not serialize_cls:
+        raise NotImplementedError(type)
+
+    serializer = serialize_cls(**params)
+    return index, serializer
+
 
 def get_store(protocol, storage_options, root: str, loader):
     fs: fsspec.AbstractFileSystem = fsspec.filesystem(protocol, **storage_options)
