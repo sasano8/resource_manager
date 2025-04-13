@@ -1,10 +1,13 @@
 import json
-
-import pytest
+import os
 
 from rctl2 import filesystems
 
-from .conftest import _vault_client
+from .conftest import (
+    RCTL2TEST_VALUT_MOUNTPOINT,
+    RCTL2TEST_VALUT_TOKEN,
+    RCTL2TEST_VALUT_URL,
+)
 
 
 def test_normalize():
@@ -26,23 +29,47 @@ def test_normalize():
     assert normalize_path("./a//.///b////.") == "a/b"
 
 
-@pytest.mark.xfail(reason="未実装")
+# @pytest.mark.xfail(reason="未実装")
 def test_get_store_local():
-    raise Exception(
-        filesystems.get_store(
-            "local", storage_options={}, root="test_kvstore", loader=json.loads
-        )
+    store = filesystems.get_store(
+        "local", storage_options={}, root="tests/data/json_store", loader=json.loads
     )
 
+    assert store == {
+        "a.json": {"b": "1", "c": {"d": "2"}},
+        "b/c.json": {"e": "3", "f": {"g": "4"}},
+    }
 
-@pytest.mark.xfail(reason="未実装")
+    store = filesystems.get_store(
+        "local", storage_options={}, root="tests/data/json_store/b", loader=json.loads
+    )
+
+    assert store == {
+        "c.json": {"e": "3", "f": {"g": "4"}},
+    }
+
+
 def test_get_store_env():
     store = filesystems.get_store("env", storage_options={}, root="", loader=json.loads)
+    assert "RCTL_TEST_ENV1" not in store
+    assert "RCTL_TEST_ENV2" not in store
 
-    # for k, v in store.items():
-    #     print(f"{k}={v}")
+    os.environ["RCTL_TEST_ENV1"] = "1"
 
-    raise NotImplementedError()
+    store = filesystems.get_store("env", storage_options={}, root="", loader=json.loads)
+
+    assert "RCTL_TEST_ENV1" in store
+    assert "RCTL_TEST_ENV2" not in store
+    store["RCTL_TEST_ENV1"] == "1"
+
+    os.environ["RCTL_TEST_ENV2"] = "2"
+
+    store = filesystems.get_store("env", storage_options={}, root="", loader=json.loads)
+
+    assert "RCTL_TEST_ENV1" in store
+    assert "RCTL_TEST_ENV2" in store
+    store["RCTL_TEST_ENV1"] == "1"
+    store["RCTL_TEST_ENV2"] == "2"
 
 
 def test_get_store_vault(vault_fs: filesystems.VaultFileSystem):
@@ -53,15 +80,26 @@ def test_get_store_vault(vault_fs: filesystems.VaultFileSystem):
     with vault_fs.open("group1/secret1", "w") as f:
         json.dump({"b": 2}, f)
 
+    storage_options = {
+        "url": RCTL2TEST_VALUT_URL,
+        "token": RCTL2TEST_VALUT_TOKEN,
+        "mount_point": RCTL2TEST_VALUT_MOUNTPOINT,
+    }
+
     store = filesystems.get_store(
         "vault",
-        storage_options={
-            "url": "http://127.0.0.1:8200",
-            "token": "vaulttoken",
-            "mount_point": "secret",
-        },
+        storage_options=storage_options,
         root="",
         loader=json.loads,
     )
 
+    assert set(vault_fs.find("", detail=False)) == set(["mysecret1", "group1/secret1"])
     assert store == {"mysecret1": {"a": 1}, "group1/secret1": {"b": 2}}
+
+    store = filesystems.get_store(
+        "vault",
+        storage_options=storage_options,
+        loader=json.loads,
+        root="group1",
+    )
+    assert store == {"secret1": {"b": 2}}

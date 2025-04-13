@@ -23,15 +23,16 @@ def extract_erros(items, parent_key: str = ""):
 class TextDictFileSystem(fsspec.AbstractFileSystem):
     protocol = None  # 登録しない
 
-    def __init__(self, data: dict, cache: bool = True):
-        if cache:
-            self._data: dict = dict(data)
-        else:
-            self._data: dict = data
+    def __init__(self, data: dict, skip_instance_cache: bool = False):
+        self._data: dict = data
 
         errors = dict(extract_erros(self._data.items()))
         if errors:
             raise ValueError(errors)
+
+        # skip_instance_cache = True は、filesystem インスタンスを取得する時にオブジェクトをキャッシュする
+        # 無効でよい
+        super().__init__(skip_instance_cache=skip_instance_cache)
 
     def info(self, path):
         if path not in self._data:

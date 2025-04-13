@@ -1,4 +1,4 @@
-from os import environ
+import os
 
 from ._dict import TextDictFileSystem
 
@@ -6,8 +6,8 @@ from ._dict import TextDictFileSystem
 class EnvFileSystem(TextDictFileSystem):
     protocol = "env"
 
-    def __init__(self, source: dict = None, cache: bool = True):
+    def __init__(self, source: dict = None, skip_instance_cache: bool = False):
         if source is None:
-            source = environ
+            source = os.environ
 
-        super().__init__(source, cache=cache)
+        super().__init__(source, skip_instance_cache=skip_instance_cache)
