@@ -45,6 +45,11 @@ def get_store_from_dict(protocol, storage_options, root: str, loader: dict):
     )
 
 
+def get_stores_from_dict(**kwargs):
+    stores = {k: get_store_from_dict(**v) for k, v in kwargs.items()}
+    return stores
+
+
 def extract_ext(path: str):
     _, ext = os.path.splitext(path)
     ext = ext.lstrip(".")

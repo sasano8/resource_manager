@@ -135,3 +135,30 @@ def test_get_store_from_dict():
         "a.json": {"b": "1", "c": {"d": "2"}},
         "b/c.json": {"e": "3", "f": {"g": "4"}},
     }
+
+
+def test_get_stores_from_dict():
+    data = {
+        "store1": {
+            "protocol": "local",
+            "storage_options": {},
+            "loader": {"*": {"type": "json", "params": {}}},
+            "root": "tests/data/json_store",
+        },
+        "store2": {
+            "protocol": "local",
+            "storage_options": {},
+            "loader": {"*": {"type": "json", "params": {}}},
+            "root": "tests/data/json_store",
+        },
+    }
+
+    stores = filesystems.get_stores_from_dict(**data)
+    assert stores["store1"] == {
+        "a.json": {"b": "1", "c": {"d": "2"}},
+        "b/c.json": {"e": "3", "f": {"g": "4"}},
+    }
+    assert stores["store2"] == {
+        "a.json": {"b": "1", "c": {"d": "2"}},
+        "b/c.json": {"e": "3", "f": {"g": "4"}},
+    }
